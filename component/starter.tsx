@@ -16,7 +16,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import dagre from "dagre";
-import { convertPulseConfigToFlowNodes, PulseConfig } from "../utils/convertPulseConfigToFlowNodes";
+import { convertPulseConfigToFlowNodes, convertFlowNodesToPulseConfig, PulseConfig } from "../utils/convertPulseConfigToFlowNodes";
 import configData from "../.better-auth-pulse.config.json";
 
 const nodeWidth = 150;
@@ -233,6 +233,12 @@ function FlowEditor() {
     setNodes(layoutedNodes);
   };
 
+  const handleSaveConfig = () => {
+    const config = convertFlowNodesToPulseConfig(nodes, edges);
+    const configJson = JSON.stringify(config, null, 2);
+    downloadFile(".better-auth-pulse.config.json", configJson);
+  };
+
   return (
     <div className="w-screen h-screen flex">
       <div className="flex-1">
@@ -256,6 +262,12 @@ function FlowEditor() {
           className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
         >
           Auto Layout
+        </button>
+        <button
+          onClick={handleSaveConfig}
+          className="bg-green-600 text-white px-4 py-2 rounded mb-4"
+        >
+          Save Config
         </button>
         <button
           onClick={handleGenerate}
