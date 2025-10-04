@@ -14,6 +14,7 @@ import {
   Handle,
   Position,
   useReactFlow,
+  getSmoothStepPath,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import dagre from "dagre";
@@ -274,12 +275,6 @@ const initialNodes: Node[] = [
     position: { x: 250, y: 100 },
     data: { label: "Auth Start" },
   },
-  {
-    id: "database-1",
-    type: "prismaDatabase",
-    position: { x: 250, y: 200 },
-    data: { label: "Database" },
-  },
 ];
 
 const initialEdges: Edge[] = [];
@@ -346,6 +341,16 @@ const createNodeTypes = (nodes: Node[]) => {
           position={Position.Left}
           className="w-3 h-3 bg-white border-2 border-gray-600"
         />
+        <Handle
+          type="source"
+          position={Position.Top}
+          className="w-3 h-3 bg-white border-2 border-gray-600"
+        />
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          className="w-3 h-3 bg-white border-2 border-gray-600"
+        />
         <div className="text-white font-semibold text-sm mb-1">
           {data.label}
         </div>
@@ -362,6 +367,27 @@ const createNodeTypes = (nodes: Node[]) => {
         <Handle
           type="source"
           position={Position.Left}
+          className="w-3 h-3 bg-white border-2 border-gray-600"
+        />
+        <Handle
+          type="source"
+          position={Position.Top}
+          className="w-3 h-3 bg-white border-2 border-gray-600"
+        />
+        <Handle
+          type="source"
+          style={{
+            left: "20%",
+          }}
+          position={Position.Bottom}
+          className="w-3 h-3 bg-white border-2 border-gray-600"
+        />
+        <Handle
+          type="source"
+          style={{
+            right: "20%",
+          }}
+          position={Position.Right}
           className="w-3 h-3 bg-white border-2 border-gray-600"
         />
         <div className="text-white font-semibold text-sm mb-1">
@@ -607,7 +633,79 @@ const createNodeTypes = (nodes: Node[]) => {
 
 const nodeTypes = createNodeTypes(initialNodes);
 
-const edgeTypes = {};
+// Custom edge component with clickable plus button
+const CustomEdge = ({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  style = {},
+  data,
+  ...props
+}: any) => {
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
+  return (
+    <>
+      <path
+        id={id}
+        className="react-flow__edge-path"
+        d={edgePath}
+        style={{
+          ...style,
+          stroke: "#6b7280",
+          strokeWidth: 2,
+          fill: "none",
+        }}
+        {...props}
+      />
+      <g transform={`translate(${labelX}, ${labelY})`}>
+        <circle
+          cx={0}
+          cy={0}
+          r={14}
+          fill="#1f2937"
+          stroke="#4b5563"
+          strokeWidth={2}
+          className="cursor-pointer hover:fill-gray-600 hover:stroke-gray-400 transition-all duration-200 shadow-lg"
+          onClick={() => data?.onAddNode?.(id)}
+        />
+        <circle
+          cx={0}
+          cy={0}
+          r={10}
+          fill="transparent"
+          stroke="#9ca3af"
+          strokeWidth={1}
+          className="pointer-events-none"
+        />
+        <text
+          x={0}
+          y={0}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          className="text-white text-lg font-bold pointer-events-none"
+        >
+          +
+        </text>
+      </g>
+    </>
+  );
+};
+
+const edgeTypes = {
+  custom: CustomEdge,
+};
 
 // Sidebar component with draggable nodes
 const Sidebar = ({ onAddNode }: { onAddNode: (nodeType: string) => void }) => {
@@ -703,6 +801,8 @@ function FlowEditor() {
     | "organization-client"
   >("canvas-to-json");
   const [previewContent, setPreviewContent] = useState("");
+  const [showNodeSelector, setShowNodeSelector] = useState(false);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
@@ -725,7 +825,9 @@ function FlowEditor() {
       const newEdge: Edge = {
         ...params,
         id: `${params.source}-${params.target}`,
+        type: "custom",
         animated: true,
+        data: { onAddNode: handleEdgeAddNode },
       };
       setEdges((eds: Edge[]) => addEdge(newEdge, eds));
     },
@@ -771,7 +873,7 @@ function FlowEditor() {
   );
 
   const handleAddNode = useCallback(
-    (nodeType: string) => {
+    (nodeType: string, edgeId?: string) => {
       const position = {
         x: Math.random() * 400 + 100,
         y: Math.random() * 300 + 100,
@@ -789,9 +891,41 @@ function FlowEditor() {
             "default",
         },
       };
+
       setNodes((nds) => nds.concat(newNode));
+
+      // If adding from an edge, create a connection
+      if (edgeId) {
+        const edge = edges.find((e) => e.id === edgeId);
+        if (edge) {
+          const newEdge: Edge = {
+            id: `${edge.target}-${newNode.id}`,
+            source: edge.target,
+            target: newNode.id,
+            type: "custom",
+            animated: true,
+            data: { onAddNode: handleEdgeAddNode },
+          };
+          setEdges((eds) => [...eds, newEdge]);
+        }
+      }
+
+      setShowNodeSelector(false);
+      setSelectedEdgeId(null);
     },
-    [setNodes]
+    [setNodes, setEdges, edges]
+  );
+
+  const handleEdgeAddNode = useCallback((edgeId: string) => {
+    setSelectedEdgeId(edgeId);
+    setShowNodeSelector(true);
+  }, []);
+
+  const handleNodeSelect = useCallback(
+    (nodeType: string) => {
+      handleAddNode(nodeType, selectedEdgeId || undefined);
+    },
+    [handleAddNode, selectedEdgeId]
   );
 
   const handleGenerate = () => {
@@ -937,7 +1071,7 @@ function FlowEditor() {
       </div>
       <div className="w-1/4 p-4 bg-gray-800 border-l border-gray-700 flex flex-col">
         {!showPreview ? (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col overflow-y-scroll h-full">
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-white mb-2">Actions</h2>
               <div className="space-y-3">
@@ -1184,9 +1318,86 @@ function FlowEditor() {
           </div>
         )}
       </div>
+
+      {/* Node Selector Modal */}
+      <NodeSelectorModal
+        isOpen={showNodeSelector}
+        onClose={() => {
+          setShowNodeSelector(false);
+          setSelectedEdgeId(null);
+        }}
+        onSelectNode={handleNodeSelect}
+      />
     </div>
   );
 }
+
+// Node Selector Modal Component
+const NodeSelectorModal = ({
+  isOpen,
+  onClose,
+  onSelectNode,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectNode: (nodeType: string) => void;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-white">Add New Node</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {nodeTypesForSidebar.map((nodeType) => (
+            <button
+              key={nodeType.type}
+              onClick={() => onSelectNode(nodeType.type)}
+              className="p-4 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg text-left transition-colors group"
+            >
+              <div className="flex items-start space-x-3">
+                <div
+                  className="w-3 h-3 rounded-full mt-1 flex-shrink-0"
+                  style={{
+                    backgroundColor:
+                      nodeType.category === "authentication"
+                        ? "#10b981"
+                        : nodeType.category === "database"
+                        ? "#3b82f6"
+                        : nodeType.category === "plugins"
+                        ? "#8b5cf6"
+                        : nodeType.category === "security"
+                        ? "#ef4444"
+                        : nodeType.category === "configuration"
+                        ? "#eab308"
+                        : "#6b7280",
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm text-white group-hover:text-gray-100 transition-colors">
+                    {nodeType.label}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1 leading-relaxed">
+                    {nodeType.description}
+                  </div>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function Starter() {
   return (
