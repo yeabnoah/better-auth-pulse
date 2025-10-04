@@ -1,0 +1,169 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "authStarter",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "label": "Auth Start"
+      }
+    },
+    {
+      "id": "2",
+      "type": "database",
+      "position": {
+        "x": 0,
+        "y": 150
+      },
+      "data": {
+        "label": "Database"
+      }
+    },
+    {
+      "id": "3",
+      "type": "prisma",
+      "position": {
+        "x": 0,
+        "y": 300
+      },
+      "data": {
+        "label": "Prisma Adapter"
+      }
+    },
+    {
+      "id": "4",
+      "type": "provider",
+      "position": {
+        "x": 0,
+        "y": 450
+      },
+      "data": {
+        "label": "DB Provider"
+      }
+    },
+    {
+      "id": "5",
+      "type": "postgresql",
+      "position": {
+        "x": 0,
+        "y": 600
+      },
+      "data": {
+        "label": "Postgresql"
+      }
+    },
+    {
+      "id": "6",
+      "type": "emailAuth",
+      "position": {
+        "x": 400,
+        "y": 0
+      },
+      "data": {
+        "label": "Email + Password Auth",
+        "minLength": 8,
+        "maxLength": 128,
+        "requireVerification": true,
+        "autoSignIn": false,
+        "resetTokenExpiresIn": 3600
+      }
+    },
+    {
+      "id": "7",
+      "type": "rateLimit",
+      "position": {
+        "x": 400,
+        "y": 600
+      },
+      "data": {
+        "label": "Rate Limiting",
+        "window": 60,
+        "maxRequests": 10,
+        "customRules": {
+          "/api/auth/sign-in": {
+            "window": 60,
+            "max": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "8",
+      "type": "advanced",
+      "position": {
+        "x": 600,
+        "y": 600
+      },
+      "data": {
+        "label": "Advanced Options",
+        "useSecureCookies": true,
+        "httpOnlyCookies": true,
+        "secureCookies": true
+      }
+    },
+    {
+      "id": "9",
+      "type": "polar",
+      "position": {
+        "x": 800,
+        "y": 600
+      },
+      "data": {
+        "label": "Polar Integration"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e2-1",
+      "source": "2",
+      "target": "1",
+      "animated": true
+    },
+    {
+      "id": "e3-2",
+      "source": "3",
+      "target": "2",
+      "animated": true
+    },
+    {
+      "id": "e4-3",
+      "source": "4",
+      "target": "3",
+      "animated": true
+    },
+    {
+      "id": "e5-4",
+      "source": "5",
+      "target": "4",
+      "animated": true
+    },
+    {
+      "id": "e6-1",
+      "source": "6",
+      "target": "1",
+      "animated": true
+    },
+    {
+      "id": "e7-1",
+      "source": "7",
+      "target": "1",
+      "animated": true
+    },
+    {
+      "id": "e8-1",
+      "source": "8",
+      "target": "1",
+      "animated": true
+    },
+    {
+      "id": "e9-1",
+      "source": "9",
+      "target": "1",
+      "animated": true
+    }
+  ]
+}
