@@ -15,40 +15,136 @@ import {
   Position,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import dagre from "dagre";
+import { convertPulseConfigToFlowNodes, PulseConfig } from "../utils/convertPulseConfigToFlowNodes";
+import configData from "../.better-auth-pulse.config.json";
 
-const initialNodes: Node[] = [
-  {
-    id: "1",
-    type: "authStarter",
-    position: { x: 0, y: 0 },
-    data: { label: "Auth Starter" },
-  },
-  {
-    id: "2",
-    type: "prismaDatabase",
-    position: { x: 200, y: 150 },
-    data: { label: "Prisma Database", provider: "sqlite" },
-  },
-];
+const nodeWidth = 150;
+const nodeHeight = 50;
 
-const nodeTypes = {
-  authStarter: ({ data }: any) => (
-    <div className="border p-3 rounded bg-white shadow-sm">
+function getLayoutedNodes(nodes: Node[], edges: Edge[]): Node[] {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({ rankdir: "TB" });
+
+  nodes.forEach((node) =>
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight })
+  );
+
+  edges.forEach((edge) => dagreGraph.setEdge(edge.source, edge.target));
+
+  dagre.layout(dagreGraph);
+
+  return nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    return {
+      ...node,
+      position: {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      },
+      positionAbsolute: { ...node.position },
+    };
+  });
+}
+
+const myConfig: PulseConfig = configData;
+
+const { nodes: rawNodes, edges: initialEdges } = convertPulseConfigToFlowNodes(myConfig);
+const initialNodes = getLayoutedNodes(rawNodes, initialEdges);
+
+// Generic node component that can handle any node type
+const GenericNode = ({ data }: any) => {
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "database": return "border-blue-200 bg-blue-50";
+      case "authentication": return "border-green-200 bg-green-50";
+      case "plugins": return "border-purple-200 bg-purple-50";
+      default: return "border-gray-200 bg-white";
+    }
+  };
+
+  const getDescription = (data: any) => {
+    if (data.provider) return `Provider: ${data.provider}`;
+    if (data.type) return `Type: ${data.type}`;
+    if (data.category) return `${data.category.charAt(0).toUpperCase() + data.category.slice(1)} service`;
+    return "Configuration node";
+  };
+
+  return (
+    <div className={`border p-3 rounded shadow-sm ${getCategoryColor(data.category)}`}>
       <Handle type="source" position={Position.Left} />
       <strong>{data.label}</strong>
-      <p className="text-xs text-gray-500 mt-1">Empty auth.ts setup</p>
+      <p className="text-xs text-gray-500 mt-1">{getDescription(data)}</p>
       <Handle type="target" position={Position.Right} />
     </div>
-  ),
-  prismaDatabase: ({ data }: any) => (
-    <div className="border p-3 rounded bg-white shadow-sm">
-      <strong>{data.label}</strong>
-      <p className="text-xs text-gray-500 mt-1">Provider: {data.provider}</p>
-      <Handle type="source" position={Position.Left} />
-      <Handle type="target" position={Position.Right} />
-    </div>
-  ),
+  );
 };
+
+// Create dynamic node types from the generated nodes
+const createNodeTypes = (nodes: Node[]) => {
+  const nodeTypes: { [key: string]: React.ComponentType<any> } = {
+    authStarter: ({ data }: any) => (
+      <div className="border p-3 rounded bg-white shadow-sm">
+        <Handle type="source" position={Position.Left} />
+        <strong>{data.label}</strong>
+        <p className="text-xs text-gray-500 mt-1">Empty auth.ts setup</p>
+        <Handle type="target" position={Position.Right} />
+      </div>
+    ),
+    prismaDatabase: ({ data }: any) => (
+      <div className="border p-3 rounded bg-blue-50 border-blue-200 shadow-sm">
+        <Handle type="source" position={Position.Left} />
+        <strong>{data.label}</strong>
+        <p className="text-xs text-gray-500 mt-1">Provider: {data.provider}</p>
+        <Handle type="target" position={Position.Right} />
+      </div>
+    ),
+    oauthGoogle: ({ data }: any) => (
+      <div className="border p-3 rounded bg-green-50 border-green-200 shadow-sm">
+        <Handle type="source" position={Position.Left} />
+        <strong>{data.label}</strong>
+        <p className="text-xs text-gray-500 mt-1">OAuth provider</p>
+        <Handle type="target" position={Position.Right} />
+      </div>
+    ),
+    oauthGithub: ({ data }: any) => (
+      <div className="border p-3 rounded bg-green-50 border-green-200 shadow-sm">
+        <Handle type="source" position={Position.Left} />
+        <strong>{data.label}</strong>
+        <p className="text-xs text-gray-500 mt-1">OAuth provider</p>
+        <Handle type="target" position={Position.Right} />
+      </div>
+    ),
+    emailResend: ({ data }: any) => (
+      <div className="border p-3 rounded bg-purple-50 border-purple-200 shadow-sm">
+        <Handle type="source" position={Position.Left} />
+        <strong>{data.label}</strong>
+        <p className="text-xs text-gray-500 mt-1">Email service</p>
+        <Handle type="target" position={Position.Right} />
+      </div>
+    ),
+    eventHandler: ({ data }: any) => (
+      <div className="border p-3 rounded bg-yellow-50 border-yellow-200 shadow-sm">
+        <Handle type="source" position={Position.Left} />
+        <strong>{data.label}</strong>
+        <p className="text-xs text-gray-500 mt-1">Event handler</p>
+        <Handle type="target" position={Position.Right} />
+      </div>
+    ),
+  };
+
+  // Add any missing node types as generic nodes
+  nodes.forEach(node => {
+    if (!nodeTypes[node.type]) {
+      nodeTypes[node.type] = GenericNode;
+    }
+  });
+
+  return nodeTypes;
+};
+
+const nodeTypes = createNodeTypes(initialNodes);
 
 const edgeTypes = {};
 
@@ -98,7 +194,7 @@ function downloadFile(filename: string, content: string) {
 
 function FlowEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
   const [code, setCode] = useState("");
 
   const onConnect = useCallback(
@@ -132,6 +228,11 @@ function FlowEditor() {
     setCode(result);
   };
 
+  const handleAutoLayout = () => {
+    const layoutedNodes = getLayoutedNodes(nodes, edges);
+    setNodes(layoutedNodes);
+  };
+
   return (
     <div className="w-screen h-screen flex">
       <div className="flex-1">
@@ -150,6 +251,12 @@ function FlowEditor() {
         </ReactFlow>
       </div>
       <div className="w-1/4 p-4 bg-gray-50 border-l flex flex-col">
+        <button
+          onClick={handleAutoLayout}
+          className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+        >
+          Auto Layout
+        </button>
         <button
           onClick={handleGenerate}
           className="bg-black text-white px-4 py-2 rounded mb-4"
