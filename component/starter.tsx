@@ -17,6 +17,8 @@ import {
 import "@xyflow/react/dist/style.css";
 import dagre from "dagre";
 import { convertPulseConfigToFlowNodes, convertFlowNodesToPulseConfig, PulseConfig } from "../utils/convertPulseConfigToFlowNodes";
+import { generateBetterAuthCode, generateEnvTemplate } from "../utils/generateBetterAuthCode";
+import { generateNodesFromAuthFile } from "../utils/parseAuthToNodes";
 import configData from "../.better-auth-pulse.config.json";
 
 const nodeWidth = 150;
@@ -48,8 +50,34 @@ function getLayoutedNodes(nodes: Node[], edges: Edge[]): Node[] {
   });
 }
 
-const myConfig: PulseConfig = configData;
+// Function to load configuration with priority: auth.ts > config.json > default
+async function loadInitialConfig(): Promise<{ nodes: Node[], edges: Edge[] }> {
+  try {
+    // Try to read auth.ts file content
+    const authResponse = await fetch('/utils/auth.ts');
+    if (authResponse.ok) {
+      const authContent = await authResponse.text();
+      return generateNodesFromAuthFile(authContent);
+    }
+  } catch (error) {
+    console.log('No auth.ts found, checking config.json');
+  }
+  
+  // Fallback to config.json
+  try {
+    const { nodes: rawNodes, edges: initialEdges } = convertPulseConfigToFlowNodes(configData);
+    return { nodes: rawNodes, edges: initialEdges };
+  } catch (error) {
+    console.log('No config.json found, using default');
+  }
+  
+  // Final fallback - just auth starter
+  return generateNodesFromAuthFile();
+}
 
+// For now, use the config.json as we can't await at module level
+// In a real app, you'd handle this in a useEffect
+const myConfig: PulseConfig = configData;
 const { nodes: rawNodes, edges: initialEdges } = convertPulseConfigToFlowNodes(myConfig);
 const initialNodes = getLayoutedNodes(rawNodes, initialEdges);
 
@@ -148,39 +176,7 @@ const nodeTypes = createNodeTypes(initialNodes);
 
 const edgeTypes = {};
 
-function generateAuthFile(nodes: Node[], edges: Edge[]) {
-  const authNode = nodes.find((n) => n.type === "authStarter");
-  const prismaNode = nodes.find((n) => n.type === "prismaDatabase");
-
-  const prismaConnected = edges.some(
-    (e) => e.source === prismaNode?.id && e.target === authNode?.id
-  );
-
-  if (prismaConnected && prismaNode) {
-    return `
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "${prismaNode.data.provider || "sqlite"}",
-  }),
-});
-`.trim();
-  }
-
-  return `
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@prisma/client";
-
-export const auth = betterAuth({
-});
-`.trim();
-}
+// Removed old generateAuthFile function - now using generateBetterAuthCode from utils
 
 function downloadFile(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/plain" });
@@ -196,6 +192,8 @@ function FlowEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
   const [code, setCode] = useState("");
+  const [authInput, setAuthInput] = useState("");
+  const [showAuthInput, setShowAuthInput] = useState(false);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -224,8 +222,39 @@ function FlowEditor() {
   );
 
   const handleGenerate = () => {
-    const result = generateAuthFile(nodes, edges);
+    // Filter nodes to ensure they have required properties
+    const validNodes = nodes.filter(node => node.type && node.id);
+    const result = generateBetterAuthCode(validNodes as any, edges);
     setCode(result);
+  };
+
+  const handleGenerateEnv = () => {
+    // Filter nodes to ensure they have required properties
+    const validNodes = nodes.filter(node => node.type && node.id);
+    const envTemplate = generateEnvTemplate(validNodes as any, edges);
+    downloadFile(".env.example", envTemplate);
+  };
+
+  const handleLoadFromAuth = async () => {
+    try {
+      const authResponse = await fetch('/utils/auth.ts');
+      if (authResponse.ok) {
+        const authContent = await authResponse.text();
+        const { nodes: newNodes, edges: newEdges } = generateNodesFromAuthFile(authContent);
+        const layoutedNodes = getLayoutedNodes(newNodes, newEdges);
+        setNodes(layoutedNodes);
+        setEdges(newEdges);
+      } else {
+        alert('No auth.ts file found. Using default configuration.');
+        const { nodes: newNodes, edges: newEdges } = generateNodesFromAuthFile();
+        const layoutedNodes = getLayoutedNodes(newNodes, newEdges);
+        setNodes(layoutedNodes);
+        setEdges(newEdges);
+      }
+    } catch (error) {
+      console.error('Error loading auth.ts:', error);
+      alert('Error loading auth.ts file');
+    }
   };
 
   const handleAutoLayout = () => {
@@ -234,9 +263,31 @@ function FlowEditor() {
   };
 
   const handleSaveConfig = () => {
-    const config = convertFlowNodesToPulseConfig(nodes, edges);
+    // Filter nodes to ensure they have required properties
+    const validNodes = nodes.filter(node => node.type && node.id);
+    const config = convertFlowNodesToPulseConfig(validNodes as any, edges);
     const configJson = JSON.stringify(config, null, 2);
     downloadFile(".better-auth-pulse.config.json", configJson);
+  };
+
+  const handleGenerateFromAuthInput = () => {
+    if (!authInput.trim()) {
+      alert('Please paste your auth.ts code first');
+      return;
+    }
+    
+    try {
+      // Use the sophisticated parser from parseAuthToNodes.ts
+      const { nodes: newNodes, edges: newEdges } = generateNodesFromAuthFile(authInput);
+      const layoutedNodes = getLayoutedNodes(newNodes, newEdges);
+      setNodes(layoutedNodes);
+      setEdges(newEdges);
+      setShowAuthInput(false);
+      setAuthInput("");
+    } catch (error) {
+      console.error('Error parsing auth code:', error);
+      alert('Error parsing auth.ts code. Please check the format.');
+    }
   };
 
   return (
@@ -257,33 +308,97 @@ function FlowEditor() {
         </ReactFlow>
       </div>
       <div className="w-1/4 p-4 bg-gray-50 border-l flex flex-col">
-        <button
-          onClick={handleAutoLayout}
-          className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
-        >
-          Auto Layout
-        </button>
-        <button
-          onClick={handleSaveConfig}
-          className="bg-green-600 text-white px-4 py-2 rounded mb-4"
-        >
-          Save Config
-        </button>
-        <button
-          onClick={handleGenerate}
-          className="bg-black text-white px-4 py-2 rounded mb-4"
-        >
-          Generate Code
-        </button>
-        <button
-          onClick={() => downloadFile("auth.ts", code)}
-          className="bg-gray-800 text-white px-4 py-2 rounded mb-4"
-        >
-          Download auth.ts
-        </button>
-        <pre className="flex-1 bg-white p-3 rounded border text-sm overflow-auto">
-          {code || "No code generated yet..."}
-        </pre>
+        {!showAuthInput ? (
+          <>
+            <button
+              onClick={() => setShowAuthInput(true)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded mb-4"
+            >
+              Paste auth.ts Code
+            </button>
+            <button
+              onClick={handleLoadFromAuth}
+              className="bg-purple-600 text-white px-4 py-2 rounded mb-4"
+            >
+              Load from auth.ts
+            </button>
+            <button
+              onClick={handleAutoLayout}
+              className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+            >
+              Auto Layout
+            </button>
+            <button
+              onClick={handleSaveConfig}
+              className="bg-green-600 text-white px-4 py-2 rounded mb-4"
+            >
+              Save Config
+            </button>
+            <button
+              onClick={handleGenerate}
+              className="bg-black text-white px-4 py-2 rounded mb-4"
+            >
+              Generate Code
+            </button>
+            <button
+              onClick={() => downloadFile("auth.ts", code)}
+              className="bg-gray-800 text-white px-4 py-2 rounded mb-4"
+            >
+              Download auth.ts
+            </button>
+            <button
+              onClick={handleGenerateEnv}
+              className="bg-yellow-600 text-white px-4 py-2 rounded mb-4"
+            >
+              Download .env
+            </button>
+            <pre className="flex-1 bg-white p-3 rounded border text-sm overflow-auto">
+              {code || "No code generated yet..."}
+            </pre>
+          </>
+        ) : (
+          <div className="flex flex-col h-full">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold mb-2">Paste your auth.ts code:</h3>
+              <textarea
+                value={authInput}
+                onChange={(e) => setAuthInput(e.target.value)}
+                placeholder="Paste your entire auth.ts file content here..."
+                className="w-full h-64 p-3 border rounded text-sm font-mono"
+              />
+            </div>
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={handleGenerateFromAuthInput}
+                className="bg-green-600 text-white px-4 py-2 rounded flex-1"
+              >
+                Generate Nodes
+              </button>
+              <button
+                onClick={() => {
+                  setShowAuthInput(false);
+                  setAuthInput("");
+                }}
+                className="bg-gray-600 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="text-sm text-gray-600">
+              <p className="mb-2">Paste your complete auth.ts file content above and click "Generate Nodes" to create a visual flow from your configuration.</p>
+              <p>The parser will detect:</p>
+              <ul className="list-disc list-inside text-xs">
+                <li>Database configuration (Prisma adapter)</li>
+                <li>Email & Password authentication</li>
+                <li>Email verification settings</li>
+                <li>Social providers (Google, GitHub)</li>
+                <li>Account linking configuration</li>
+                <li>Rate limiting rules</li>
+                <li>Advanced security options</li>
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
