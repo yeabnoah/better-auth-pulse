@@ -10,26 +10,55 @@ import {
 } from "@xyflow/react";
 import { NODE_TYPES_FOR_SIDEBAR } from "../types/nodeTypes";
 import { getLayoutedNodes } from "../utils/layout";
-import { loadInitialConfig } from "../utils/fileUtils";
 
 export function useFlowEditor() {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const [showPreview, setShowPreview] = useState(false);
   const [showNodeSelector, setShowNodeSelector] = useState(false);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
-  // Load initial configuration
+  // Load initial configuration from auth.ts file
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const { nodes: initialNodes, edges: initialEdges } =
-          await loadInitialConfig();
-        const layoutedNodes = getLayoutedNodes(initialNodes, initialEdges);
-        setNodes(layoutedNodes);
-        setEdges(initialEdges);
+        console.log("Loading initial config from auth.ts...");
+        // Try to read auth.ts file content
+        const authResponse = await fetch("/api/get-auth");
+        if (authResponse.ok) {
+          const authContent = await authResponse.text();
+          console.log(
+            "Auth.ts content loaded:",
+            authContent.substring(0, 200) + "..."
+          );
+
+          const { generateNodesFromAuthFile } = await import(
+            "../../utils/parseAuthToNodes"
+          );
+          const { nodes: initialNodes, edges: initialEdges } =
+            generateNodesFromAuthFile(authContent);
+          console.log("Generated nodes from auth.ts:", initialNodes);
+          console.log("Generated edges from auth.ts:", initialEdges);
+
+          const layoutedNodes = getLayoutedNodes(initialNodes, initialEdges);
+          setNodes(layoutedNodes);
+          setEdges(initialEdges);
+          console.log("Canvas loaded with auth.ts configuration");
+        } else {
+          console.log("No auth.ts found, using default");
+          // Fallback to default if no auth.ts
+          const defaultNodes: Node[] = [
+            {
+              id: "auth-start-1",
+              type: "authStarter",
+              position: { x: 250, y: 100 },
+              data: { label: "Auth Start" },
+            },
+          ];
+          setNodes(defaultNodes);
+          setEdges([]);
+        }
       } catch (error) {
         console.error("Error loading initial config:", error);
         // Fallback to default auth starter node
@@ -183,8 +212,6 @@ export function useFlowEditor() {
     edges,
     setEdges,
     onEdgesChange,
-    showPreview,
-    setShowPreview,
     showNodeSelector,
     setShowNodeSelector,
     selectedEdgeId,

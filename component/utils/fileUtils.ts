@@ -8,40 +8,14 @@ export function downloadFile(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-export async function loadInitialConfig(): Promise<{
-  nodes: any[];
-  edges: any[];
-}> {
-  try {
-    // Try to read auth.ts file content
-    const authResponse = await fetch("/utils/auth.ts");
-    if (authResponse.ok) {
-      const authContent = await authResponse.text();
-      const { generateNodesFromAuthFile } = await import(
-        "../../utils/parseAuthToNodes"
-      );
-      return generateNodesFromAuthFile(authContent);
-    }
-  } catch (error) {
-    console.log("No auth.ts found, checking config.json");
-  }
-
-  // Fallback to config.json
-  try {
-    const configData = await import("../../.better-auth-pulse.config.json");
-    const { convertPulseConfigToFlowNodes } = await import(
-      "../../utils/convertPulseConfigToFlowNodes"
-    );
-    const { nodes: rawNodes, edges: initialEdges } =
-      convertPulseConfigToFlowNodes(configData.default);
-    return { nodes: rawNodes, edges: initialEdges };
-  } catch (error) {
-    console.log("No config.json found, using default");
-  }
-
-  // Final fallback - just auth starter
-  const { generateNodesFromAuthFile } = await import(
-    "../../utils/parseAuthToNodes"
-  );
-  return generateNodesFromAuthFile();
+// Simplified - we start with a clean canvas and build from there
+export function getDefaultNodes() {
+  return [
+    {
+      id: "auth-start-1",
+      type: "authStarter",
+      position: { x: 250, y: 100 },
+      data: { label: "Auth Start" },
+    },
+  ];
 }

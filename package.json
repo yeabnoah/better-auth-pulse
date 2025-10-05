@@ -1,14 +1,51 @@
 {
   "name": "better-auth-pulse",
   "version": "0.1.0",
-  "private": true,
+  "description": "Visual studio for Better Auth configuration with drag-and-drop interface",
+  "keywords": ["better-auth", "authentication", "visual-config", "studio", "cli", "typescript"],
+  "author": "Better Auth Pulse Team",
+  "license": "MIT",
+  "homepage": "https://github.com/your-username/better-auth-pulse#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/better-auth-pulse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/better-auth-pulse/issues"
+  },
+  "bin": {
+    "better-auth-pulse": "./cli/cli.js"
+  },
+  "files": [
+    "cli/",
+    "app/",
+    "component/",
+    "components/",
+    "lib/",
+    "utils/",
+    "public/",
+    "next.config.ts",
+    "tailwind.config.js",
+    "postcss.config.mjs",
+    "tsconfig.json"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"No tests specified\" && exit 0",
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "npm test -- --coverage",
+    "clean": "rm -rf .next dist out",
+    "prepublishOnly": "npm run clean && npm run build && npm run type-check",
+    "postinstall": "chmod +x ./cli/cli.js",
+    "prepack": "npm run clean && npm run build"
   },
   "dependencies": {
+    "@clack/prompts": "^0.11.0",
     "@prisma/client": "^6.16.3",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-separator": "^1.1.7",
@@ -23,6 +60,7 @@
     "lucide-react": "^0.544.0",
     "next": "15.5.4",
     "next-themes": "^0.4.6",
+    "picocolors": "^1.1.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwind-merge": "^3.3.1"

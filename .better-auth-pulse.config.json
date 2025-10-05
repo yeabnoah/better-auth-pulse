@@ -1,235 +1,257 @@
 {
-    "nodes": [
-        {
-            "id": "1",
-            "type": "authStarter",
-            "position": {
-                "x": 0,
-                "y": 0
-            },
-            "data": {
-                "label": "Auth Start"
-            }
-        },
-        {
-            "id": "2",
-            "type": "database",
-            "position": {
-                "x": 0,
-                "y": 150
-            },
-            "data": {
-                "label": "Database"
-            }
-        },
-        {
-            "id": "3",
-            "type": "prisma",
-            "position": {
-                "x": 0,
-                "y": 300
-            },
-            "data": {
-                "label": "Prisma Adapter"
-            }
-        },
-        {
-            "id": "4",
-            "type": "provider",
-            "position": {
-                "x": 0,
-                "y": 450
-            },
-            "data": {
-                "label": "DB Provider"
-            }
-        },
-        {
-            "id": "5",
-            "type": "sqlite",
-            "position": {
-                "x": 0,
-                "y": 600
-            },
-            "data": {
-                "label": "SQLite"
-            }
-        },
-        {
-            "id": "9",
-            "type": "emailAuth",
-            "position": {
-                "x": 400,
-                "y": 0
-            },
-            "data": {
-                "label": "Email + Password Auth",
-                "minLength": 8,
-                "maxLength": 128,
-                "requireVerification": true,
-                "autoSignIn": true,
-                "resetTokenExpiresIn": 3600
-            }
-        },
-        {
-            "id": "10",
-            "type": "emailVerification",
-            "position": {
-                "x": 600,
-                "y": 0
-            },
-            "data": {
-                "label": "Email Verification",
-                "sendOnSignUp": true,
-                "sendOnSignIn": false,
-                "autoSignInAfterVerification": true,
-                "tokenExpiresIn": 3600
-            }
-        },
-        {
-            "id": "6",
-            "type": "socialLogin",
-            "position": {
-                "x": 400,
-                "y": 200
-            },
-            "data": {
-                "label": "Social Login Providers"
-            }
-        },
-        {
-            "id": "7",
-            "type": "oauthGoogle",
-            "position": {
-                "x": 600,
-                "y": 300
-            },
-            "data": {
-                "label": "Google OAuth"
-            }
-        },
-        {
-            "id": "8",
-            "type": "oauthGithub",
-            "position": {
-                "x": 800,
-                "y": 300
-            },
-            "data": {
-                "label": "Github OAuth"
-            }
-        },
-        {
-            "id": "11",
-            "type": "account",
-            "position": {
-                "x": 600,
-                "y": 450
-            },
-            "data": {
-                "label": "Account Linking",
-                "encryptOAuthTokens": true,
-                "updateOnSignIn": true,
-                "trustedProviders": [
-                    "google",
-                    "github",
-                    "email-password"
-                ],
-                "allowDifferentEmails": false
-            }
-        },
-        {
-            "id": "12",
-            "type": "rateLimit",
-            "position": {
-                "x": 400,
-                "y": 600
-            },
-            "data": {
-                "label": "Rate Limiting",
-                "window": 60,
-                "maxRequests": 100,
-                "customRules": {
-                    "/api/auth/sign-in": {
-                        "window": 60,
-                        "max": 10
-                    }
-                }
-            }
-        }
+  "metadata": {
+    "sourceFile": "utils/auth.ts",
+    "generatedAt": "2025-10-05T06:29:52.784Z",
+    "version": "1.0.0",
+    "cli": "clack"
+  },
+  "nodes": [
+    {
+      "id": "1",
+      "type": "authStarter",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "label": "Auth Start"
+      }
+    },
+    {
+      "id": "2",
+      "type": "database",
+      "position": {
+        "x": 0,
+        "y": 150
+      },
+      "data": {
+        "label": "Database"
+      }
+    },
+    {
+      "id": "3",
+      "type": "prisma",
+      "position": {
+        "x": 0,
+        "y": 300
+      },
+      "data": {
+        "label": "Prisma Adapter"
+      }
+    },
+    {
+      "id": "4",
+      "type": "provider",
+      "position": {
+        "x": 0,
+        "y": 450
+      },
+      "data": {
+        "label": "DB Provider"
+      }
+    },
+    {
+      "id": "5",
+      "type": "postgresql",
+      "position": {
+        "x": 0,
+        "y": 600
+      },
+      "data": {
+        "label": "POSTGRESQL"
+      }
+    },
+    {
+      "id": "6",
+      "type": "socialLogin",
+      "position": {
+        "x": 400,
+        "y": 200
+      },
+      "data": {
+        "label": "Social Login Providers"
+      }
+    },
+    {
+      "id": "7",
+      "type": "oauthGoogle",
+      "position": {
+        "x": 600,
+        "y": 300
+      },
+      "data": {
+        "label": "Google OAuth"
+      }
+    },
+    {
+      "id": "8",
+      "type": "oauthGithub",
+      "position": {
+        "x": 800,
+        "y": 300
+      },
+      "data": {
+        "label": "Github OAuth"
+      }
+    },
+    {
+      "id": "9",
+      "type": "account",
+      "position": {
+        "x": 600,
+        "y": 450
+      },
+      "data": {
+        "label": "Account Linking",
+        "trustedProviders": [
+          "google",
+          "github",
+          "email-password"
+        ],
+        "allowDifferentEmails": false
+      }
+    },
+    {
+      "id": "10",
+      "type": "advanced",
+      "position": {
+        "x": 600,
+        "y": 600
+      },
+      "data": {
+        "label": "Advanced Options",
+        "useSecureCookies": true,
+        "httpOnlyCookies": true,
+        "secureCookies": true
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1-2",
+      "source": "1",
+      "target": "2",
+      "animated": true
+    },
+    {
+      "id": "e2-3",
+      "source": "2",
+      "target": "3",
+      "animated": true
+    },
+    {
+      "id": "e3-4",
+      "source": "3",
+      "target": "4",
+      "animated": true
+    },
+    {
+      "id": "e4-5",
+      "source": "4",
+      "target": "5",
+      "animated": true
+    },
+    {
+      "id": "e1-6",
+      "source": "1",
+      "target": "6",
+      "animated": true
+    },
+    {
+      "id": "e6-7",
+      "source": "6",
+      "target": "7",
+      "animated": true
+    },
+    {
+      "id": "e6-8",
+      "source": "6",
+      "target": "8",
+      "animated": true
+    },
+    {
+      "id": "e6-9",
+      "source": "6",
+      "target": "9",
+      "animated": true
+    },
+    {
+      "id": "e9-10",
+      "source": "9",
+      "target": "10",
+      "animated": true
+    }
+  ],
+  "authContent": "import { betterAuth } from \"better-auth\";\nimport { prismaAdapter } from \"better-auth/adapters/prisma\";\nimport { PrismaClient } from \"@prisma/client\";\n\nconst prisma = new PrismaClient();\n\nexport const auth = betterAuth({\n  secret: process.env.BETTER_AUTH_SECRET!,\n  baseURL: process.env.BETTER_AUTH_URL || \"http://localhost:3000\",\n  database: prismaAdapter(prisma, {\n    provider: \"postgresql\",\n  }),\n\n  socialProviders: {\n    google: {\n      clientId: process.env.GOOGLE_CLIENT_ID!,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,\n    },\n    github: {\n      clientId: process.env.GITHUB_CLIENT_ID!,\n      clientSecret: process.env.GITHUB_CLIENT_SECRET!,\n    },\n  },\n  // account: {\n  //   accountLinking: {\n  //     enabled: true,\n  //     trustedProviders: [\"google\", \"github\", \"email-password\"],\n  //     allowDifferentEmails: false,\n  //   },\n  // },\n  rateLimit: {\n    window: 60,\n    max: 100,\n    customRules: {\n      \"/api/auth/sign-in\": {\n        window: 60,\n        max: 10,\n      },\n    },\n  },\n  advanced: {\n    useSecureCookies: true,\n    cookiePrefix: \"better-auth\",\n    crossSubDomainCookies: {\n      enabled: true,\n      domain: process.env.COOKIE_DOMAIN,\n    },\n  },\n});\n\nexport type Session = typeof auth.$Infer.Session;\nexport type User = typeof auth.$Infer.User;\n",
+  "parsedConfig": {
+    "hasDatabase": true,
+    "databaseProvider": "postgresql",
+    "hasEmailPassword": false,
+    "emailPasswordConfig": {},
+    "hasEmailVerification": false,
+    "emailVerificationConfig": {},
+    "socialProviders": [
+      "google",
+      "github"
     ],
-    "edges": [
-        {
-            "id": "e1-2",
-            "source": "1",
-            "target": "2",
-            "animated": true
-        },
-        {
-            "id": "e2-3",
-            "source": "2",
-            "target": "3",
-            "animated": true
-        },
-        {
-            "id": "e3-4",
-            "source": "3",
-            "target": "4",
-            "animated": true
-        },
-        {
-            "id": "e4-5",
-            "source": "4",
-            "target": "5",
-            "animated": true
-        },
-        {
-            "id": "e1-9",
-            "source": "1",
-            "target": "9",
-            "animated": true
-        },
-        {
-            "id": "e9-10",
-            "source": "9",
-            "target": "10",
-            "animated": true
-        },
-        {
-            "id": "e1-6",
-            "source": "1",
-            "target": "6",
-            "animated": true
-        },
-        {
-            "id": "e6-7",
-            "source": "6",
-            "target": "7",
-            "animated": true
-        },
-        {
-            "id": "e6-8",
-            "source": "6",
-            "target": "8",
-            "animated": true
-        },
-        {
-            "id": "e6-11",
-            "source": "6",
-            "target": "11",
-            "animated": true
-        },
-        {
-            "id": "e9-12",
-            "source": "9",
-            "target": "12",
-            "animated": true
-        },
-        {
-            "id": "e11-13",
-            "source": "11",
-            "target": "13",
-            "animated": true
-        }
-    ]
+    "hasAccountLinking": true,
+    "accountLinkingConfig": {
+      "trustedProviders": [
+        "google",
+        "github",
+        "email-password"
+      ],
+      "allowDifferentEmails": false
+    },
+    "hasRateLimit": true,
+    "rateLimitConfig": {
+      "window": 60,
+      "maxRequests": 100,
+      "customRules": {}
+    },
+    "hasAdvanced": true,
+    "advancedConfig": {
+      "useSecureCookies": true,
+      "httpOnlyCookies": true,
+      "secureCookies": true
+    },
+    "database": "prisma",
+    "userFields": [],
+    "plugins": []
+  },
+  "jsonConfig": {
+    "database": {
+      "type": "prisma",
+      "provider": "postgresql"
+    },
+    "socialProviders": {
+      "google": {
+        "enabled": true
+      },
+      "github": {
+        "enabled": true
+      }
+    },
+    "accountLinking": {
+      "enabled": true,
+      "trustedProviders": [
+        "google",
+        "github",
+        "email-password"
+      ],
+      "allowDifferentEmails": false
+    },
+    "rateLimit": {
+      "enabled": true,
+      "window": 60,
+      "maxRequests": 100,
+      "customRules": {}
+    },
+    "advanced": {
+      "enabled": true,
+      "useSecureCookies": true,
+      "httpOnlyCookies": true,
+      "secureCookies": true
+    }
+  }
 }

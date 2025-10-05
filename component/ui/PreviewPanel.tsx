@@ -14,9 +14,15 @@ interface PreviewPanelProps {
   nodes: Node[];
   edges: Edge[];
   onClose: () => void;
+  onNodesUpdate?: (nodes: Node[], edges: Edge[]) => void;
 }
 
-export function PreviewPanel({ nodes, edges, onClose }: PreviewPanelProps) {
+export function PreviewPanel({
+  nodes,
+  edges,
+  onClose,
+  onNodesUpdate,
+}: PreviewPanelProps) {
   const [previewMode, setPreviewMode] = useState<PreviewMode>("canvas-to-json");
   const [previewContent, setPreviewContent] = useState("");
   const [authInput, setAuthInput] = useState("");
@@ -39,7 +45,12 @@ export function PreviewPanel({ nodes, edges, onClose }: PreviewPanelProps) {
       );
       const { nodes: newNodes, edges: newEdges } =
         generateNodesFromAuthFile(authInput);
-      // Note: This would need to be handled by parent component
+
+      // Update the parent component with the generated nodes
+      if (onNodesUpdate) {
+        onNodesUpdate(newNodes, newEdges);
+      }
+
       console.log("Generated nodes:", newNodes, newEdges);
       setAuthInput("");
     } catch (error) {
@@ -58,7 +69,12 @@ export function PreviewPanel({ nodes, edges, onClose }: PreviewPanelProps) {
         );
         const { nodes: newNodes, edges: newEdges } =
           generateNodesFromAuthFile(authContent);
-        // Note: This would need to be handled by parent component
+
+        // Update the parent component with the loaded nodes
+        if (onNodesUpdate) {
+          onNodesUpdate(newNodes, newEdges);
+        }
+
         console.log("Loaded nodes:", newNodes, newEdges);
       } else {
         alert("No auth.ts file found. Using default configuration.");
