@@ -1,8 +1,8 @@
 import { Handle, Position } from "@xyflow/react";
 import { CATEGORY_COLORS } from "../types/nodeTypes";
 import { NodeData } from "../types";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
 
 interface GenericNodeProps {
   data: NodeData;

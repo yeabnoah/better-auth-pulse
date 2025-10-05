@@ -1,6 +1,6 @@
 {
   "name": "better-auth-pulse",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Visual studio for Better Auth configuration with drag-and-drop interface",
   "keywords": ["better-auth", "authentication", "visual-config", "studio", "cli", "typescript"],
   "author": "Better Auth Pulse Team",
@@ -16,6 +16,14 @@
   "bin": {
     "better-auth-pulse": "./cli/cli.js"
   },
+  "exports": {
+    ".": "./app/page.tsx",
+    "./component/*": "./component/*",
+    "./components/*": "./components/*",
+    "./app/*": "./app/*",
+    "./lib/*": "./lib/*",
+    "./utils/*": "./utils/*"
+  },
   "files": [
     "cli/",
     "app/",
@@ -25,6 +33,7 @@
     "utils/",
     "public/",
     "next.config.ts",
+    "jsconfig.json",
     "tailwind.config.js",
     "postcss.config.mjs",
     "tsconfig.json"

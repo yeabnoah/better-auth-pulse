@@ -1,7 +1,15 @@
 {
   "database": {
-    "type": "prisma",
-    "provider": "postgresql"
+    "type": "drizzle",
+    "provider": "sqlite"
+  },
+  "emailPassword": {
+    "enabled": true,
+    "minLength": 8,
+    "maxLength": 128,
+    "requireVerification": true,
+    "autoSignIn": true,
+    "resetTokenExpiresIn": 3600
   },
   "socialProviders": {
     "google": {
@@ -10,26 +18,5 @@
     "github": {
       "enabled": true
     }
-  },
-  "accountLinking": {
-    "enabled": true,
-    "trustedProviders": [
-      "google",
-      "github",
-      "email-password"
-    ],
-    "allowDifferentEmails": false
-  },
-  "rateLimit": {
-    "enabled": true,
-    "window": 60,
-    "maxRequests": 100,
-    "customRules": {}
-  },
-  "advanced": {
-    "enabled": true,
-    "useSecureCookies": true,
-    "httpOnlyCookies": true,
-    "secureCookies": true
   }
 }

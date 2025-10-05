@@ -1,7 +1,7 @@
 import { Handle, Position } from "@xyflow/react";
 import { NodeData } from "../types";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
 
 interface EmailAuthNodeProps {
   data: NodeData;

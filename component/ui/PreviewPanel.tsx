@@ -8,7 +8,7 @@ import {
   generateEnvTemplate,
   generateOrganizationClient,
 } from "../../utils/generateBetterAuthCode";
-import { convertFlowNodesToPulseConfig } from "@/utils/convertPulseConfigToFlowNodes";
+import { convertFlowNodesToPulseConfig } from "../../utils/convertPulseConfigToFlowNodes";
 
 interface PreviewPanelProps {
   nodes: Node[];

@@ -1,4 +1,4 @@
-import Starter from "@/component/starter";
+import Starter from "../component/starter";
 
 export default function Home() {
   return (

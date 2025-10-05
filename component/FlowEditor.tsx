@@ -13,11 +13,11 @@ import { Sidebar } from "./ui/Sidebar";
 import { NodeSelectorModal } from "./ui/NodeSelectorModal";
 import { createNodeTypes } from "./utils/nodeTypesFactory";
 import { CustomEdge } from "./edges/CustomEdge";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import {
   convertFlowNodesToAuthConfig,
   generateAuthTs,
-} from "@/app/lib/auth-conversion-service";
+} from "../app/lib/auth-conversion-service";
 import { useState } from "react";
 
 const edgeTypes = {
