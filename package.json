@@ -1,27 +1,71 @@
 {
   "name": "better-auth-pulse",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Visual authentication flow builder for better-auth",
+  "main": "bin/cli.js",
+  "bin": {
+    "better-auth-pulse": "./bin/cli.js",
+    "bap": "./bin/cli.js"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cli": "./bin/cli.js",
+    "prepublishOnly": "npm run build",
+    "postinstall": "echo '🎉 Better Auth Pulse installed! Run: better-auth-pulse'"
   },
+  "keywords": [
+    "better-auth",
+    "authentication",
+    "visual-builder",
+    "cli",
+    "nextjs"
+  ],
+  "author": "Better Auth Pulse Team",
+  "license": "MIT",
   "dependencies": {
+    "@clack/core": "^0.5.0",
+    "@clack/prompts": "^0.11.0",
+    "@oclif/core": "^4.5.4",
+    "@oclif/plugin-help": "^6.2.33",
+    "@oclif/plugin-plugins": "^5.4.48",
     "@prisma/client": "^6.16.3",
     "@types/dagre": "^0.7.53",
     "@xyflow/react": "^12.8.6",
-    "better-auth": "^1.3.26",
+    "better-auth": ">=1.0.0",
+    "chalk": "^5.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dagre": "^0.8.5",
+    "inquirer": "^12.9.6",
     "lucide-react": "^0.544.0",
     "next": "15.5.4",
+    "open": "^8.4.0",
+    "ora": "^9.0.0",
+    "picocolors": "^1.1.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwind-merge": "^3.3.1"
   },
+  "peerDependencies": {
+    "better-auth": ">=1.0.0"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "utils/",
+    "component/",
+    "app/",
+    "public/",
+    ".next/",
+    "next.config.js",
+    "tailwind.config.ts",
+    "tsconfig.json",
+    "package.json",
+    "README.md"
+  ],
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
@@ -33,5 +77,16 @@
     "tailwindcss": "^4",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5"
-  }
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/better-auth/better-auth-pulse"
+  },
+  "bugs": {
+    "url": "https://github.com/better-auth/better-auth-pulse/issues"
+  },
+  "homepage": "https://github.com/better-auth/better-auth-pulse#readme"
 }

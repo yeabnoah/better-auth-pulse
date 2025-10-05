@@ -1,235 +1,211 @@
 {
-    "nodes": [
-        {
-            "id": "1",
-            "type": "authStarter",
-            "position": {
-                "x": 0,
-                "y": 0
-            },
-            "data": {
-                "label": "Auth Start"
-            }
-        },
-        {
-            "id": "2",
-            "type": "database",
-            "position": {
-                "x": 0,
-                "y": 150
-            },
-            "data": {
-                "label": "Database"
-            }
-        },
-        {
-            "id": "3",
-            "type": "prisma",
-            "position": {
-                "x": 0,
-                "y": 300
-            },
-            "data": {
-                "label": "Prisma Adapter"
-            }
-        },
-        {
-            "id": "4",
-            "type": "provider",
-            "position": {
-                "x": 0,
-                "y": 450
-            },
-            "data": {
-                "label": "DB Provider"
-            }
-        },
-        {
-            "id": "5",
-            "type": "sqlite",
-            "position": {
-                "x": 0,
-                "y": 600
-            },
-            "data": {
-                "label": "SQLite"
-            }
-        },
-        {
-            "id": "9",
-            "type": "emailAuth",
-            "position": {
-                "x": 400,
-                "y": 0
-            },
-            "data": {
-                "label": "Email + Password Auth",
-                "minLength": 8,
-                "maxLength": 128,
-                "requireVerification": true,
-                "autoSignIn": true,
-                "resetTokenExpiresIn": 3600
-            }
-        },
-        {
-            "id": "10",
-            "type": "emailVerification",
-            "position": {
-                "x": 600,
-                "y": 0
-            },
-            "data": {
-                "label": "Email Verification",
-                "sendOnSignUp": true,
-                "sendOnSignIn": false,
-                "autoSignInAfterVerification": true,
-                "tokenExpiresIn": 3600
-            }
-        },
-        {
-            "id": "6",
-            "type": "socialLogin",
-            "position": {
-                "x": 400,
-                "y": 200
-            },
-            "data": {
-                "label": "Social Login Providers"
-            }
-        },
-        {
-            "id": "7",
-            "type": "oauthGoogle",
-            "position": {
-                "x": 600,
-                "y": 300
-            },
-            "data": {
-                "label": "Google OAuth"
-            }
-        },
-        {
-            "id": "8",
-            "type": "oauthGithub",
-            "position": {
-                "x": 800,
-                "y": 300
-            },
-            "data": {
-                "label": "Github OAuth"
-            }
-        },
-        {
-            "id": "11",
-            "type": "account",
-            "position": {
-                "x": 600,
-                "y": 450
-            },
-            "data": {
-                "label": "Account Linking",
-                "encryptOAuthTokens": true,
-                "updateOnSignIn": true,
-                "trustedProviders": [
-                    "google",
-                    "github",
-                    "email-password"
-                ],
-                "allowDifferentEmails": false
-            }
-        },
-        {
-            "id": "12",
-            "type": "rateLimit",
-            "position": {
-                "x": 400,
-                "y": 600
-            },
-            "data": {
-                "label": "Rate Limiting",
-                "window": 60,
-                "maxRequests": 100,
-                "customRules": {
-                    "/api/auth/sign-in": {
-                        "window": 60,
-                        "max": 10
-                    }
-                }
-            }
-        }
+  "metadata": {
+    "sourceFile": "utils/auth.ts",
+    "generatedAt": "2025-10-05T02:59:39.900Z",
+    "version": "1.0.0",
+    "cli": "clack"
+  },
+  "nodes": [
+    {
+      "id": "1",
+      "type": "authStarter",
+      "position": {
+        "x": 250,
+        "y": 50
+      },
+      "data": {
+        "label": "Auth Starter"
+      }
+    },
+    {
+      "id": "2",
+      "type": "database",
+      "position": {
+        "x": 0,
+        "y": 150
+      },
+      "data": {
+        "label": "Database"
+      }
+    },
+    {
+      "id": "3",
+      "type": "drizzle",
+      "position": {
+        "x": 0,
+        "y": 250
+      },
+      "data": {
+        "label": "Drizzle Adapter"
+      }
+    },
+    {
+      "id": "4",
+      "type": "pg",
+      "position": {
+        "x": 0,
+        "y": 350
+      },
+      "data": {
+        "label": "PG"
+      }
+    },
+    {
+      "id": "5",
+      "type": "emailAuth",
+      "position": {
+        "x": 400,
+        "y": 150
+      },
+      "data": {
+        "label": "Email & Password"
+      }
+    },
+    {
+      "id": "6",
+      "type": "userConfig",
+      "position": {
+        "x": 400,
+        "y": 250
+      },
+      "data": {
+        "label": "User Configuration"
+      }
+    },
+    {
+      "id": "7",
+      "type": "socialLogin",
+      "position": {
+        "x": 400,
+        "y": 350
+      },
+      "data": {
+        "label": "Social Providers"
+      }
+    },
+    {
+      "id": "8",
+      "type": "oauthGoogle",
+      "position": {
+        "x": 600,
+        "y": 450
+      },
+      "data": {
+        "label": "Google OAuth"
+      }
+    },
+    {
+      "id": "9",
+      "type": "plugins",
+      "position": {
+        "x": 800,
+        "y": 500
+      },
+      "data": {
+        "label": "Plugins"
+      }
+    },
+    {
+      "id": "10",
+      "type": "polarPlugin",
+      "position": {
+        "x": 1000,
+        "y": 600
+      },
+      "data": {
+        "label": "Polar (Checkout, Portal, Usage, Webhooks)"
+      }
+    },
+    {
+      "id": "11",
+      "type": "nextCookies",
+      "position": {
+        "x": 1000,
+        "y": 680
+      },
+      "data": {
+        "label": "Next.js Cookies"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1-2",
+      "source": "1",
+      "target": "2",
+      "animated": true
+    },
+    {
+      "id": "e1-3",
+      "source": "1",
+      "target": "3",
+      "animated": true
+    },
+    {
+      "id": "e1-4",
+      "source": "1",
+      "target": "4",
+      "animated": true
+    },
+    {
+      "id": "e1-5",
+      "source": "1",
+      "target": "5",
+      "animated": true
+    },
+    {
+      "id": "e1-6",
+      "source": "1",
+      "target": "6",
+      "animated": true
+    },
+    {
+      "id": "e1-7",
+      "source": "1",
+      "target": "7",
+      "animated": true
+    },
+    {
+      "id": "e1-8",
+      "source": "1",
+      "target": "8",
+      "animated": true
+    },
+    {
+      "id": "e1-9",
+      "source": "1",
+      "target": "9",
+      "animated": true
+    },
+    {
+      "id": "e1-10",
+      "source": "1",
+      "target": "10",
+      "animated": true
+    },
+    {
+      "id": "e1-11",
+      "source": "1",
+      "target": "11",
+      "animated": true
+    }
+  ],
+  "authContent": "import { betterAuth } from \"better-auth\";\nimport { drizzleAdapter } from \"better-auth/adapters/drizzle\";\nimport { db } from \"@/db/drizzle\";\nimport {schema} from \"@/db/schema\"\nimport { nextCookies } from \"better-auth/next-js\";\nimport { polar, checkout, portal, usage, webhooks } from \"@polar-sh/better-auth\";\nimport { Polar } from \"@polar-sh/sdk\";\n\nconst polarClient = new Polar({\n    accessToken: process.env.POLAR_ACCESS_TOKEN,\n    server: 'sandbox'\n});\nexport const auth = betterAuth({\n  emailAndPassword: { \n    enabled: true, \n  }, \n  user: {\n    additionalFields: {\n      role: {\n        type: \"string\",\n        required: false,\n        defaultValue: \"user\",\n        input: false,\n      }\n    },\n    deleteUser: { enabled: true } \n  },\n  database: drizzleAdapter(db, {\n    provider: \"pg\",\n    schema,\n  }),\n  socialProviders: {\n    google: { \n        clientId: process.env.GOOGLE_CLIENT_ID as string, \n        clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, \n    }, \n},\n  plugins: [\n    polar({\n      client: polarClient,\n      createCustomerOnSignUp: true,\n      use: [\n          checkout({\n              products: [\n                {\n                  productId: \"88c88042-ede8-4290-8e6e-b96291bf4c87\",\n                  slug: \"free\"\n                },\n                  {\n                      productId: \"447405a4-6037-42f5-9138-aa519625dc3e\", // ID of Product from Polar Dashboard\n                      slug: \"pro\" // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro\n                  },\n                  {\n                      productId: \"d6aea22f-6156-4bc9-9f4c-a937ad05fa0f\", // ID of Product from Polar Dashboard\n                      slug: \"enterprise\" // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro\n                  }\n              ],\n              successUrl: \"/dashboard\",\n              authenticatedUsersOnly: true\n          }),\n          portal(),\n          usage(),\n          webhooks({\n              secret: process.env.POLAR_WEBHOOK_SECRET as string,\n          })\n      ],\n  }),\n  nextCookies(),\n \n  ]\n});",
+  "parsedConfig": {
+    "database": "drizzle",
+    "databaseProvider": "pg",
+    "features": [
+      "Email & Password"
     ],
-    "edges": [
-        {
-            "id": "e1-2",
-            "source": "1",
-            "target": "2",
-            "animated": true
-        },
-        {
-            "id": "e2-3",
-            "source": "2",
-            "target": "3",
-            "animated": true
-        },
-        {
-            "id": "e3-4",
-            "source": "3",
-            "target": "4",
-            "animated": true
-        },
-        {
-            "id": "e4-5",
-            "source": "4",
-            "target": "5",
-            "animated": true
-        },
-        {
-            "id": "e1-9",
-            "source": "1",
-            "target": "9",
-            "animated": true
-        },
-        {
-            "id": "e9-10",
-            "source": "9",
-            "target": "10",
-            "animated": true
-        },
-        {
-            "id": "e1-6",
-            "source": "1",
-            "target": "6",
-            "animated": true
-        },
-        {
-            "id": "e6-7",
-            "source": "6",
-            "target": "7",
-            "animated": true
-        },
-        {
-            "id": "e6-8",
-            "source": "6",
-            "target": "8",
-            "animated": true
-        },
-        {
-            "id": "e6-11",
-            "source": "6",
-            "target": "11",
-            "animated": true
-        },
-        {
-            "id": "e9-12",
-            "source": "9",
-            "target": "12",
-            "animated": true
-        },
-        {
-            "id": "e11-13",
-            "source": "11",
-            "target": "13",
-            "animated": true
-        }
+    "socialProviders": [
+      "Google"
+    ],
+    "userFields": [
+      "role"
+    ],
+    "plugins": [
+      "Polar (Checkout, Portal, Usage, Webhooks)",
+      "Next.js Cookies"
     ]
+  }
 }
