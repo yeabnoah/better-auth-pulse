@@ -87,14 +87,6 @@ interface AuthConfig {
     allowUserToUpdateOrganizationPermission?: boolean;
     allowUserToDeleteOrganizationPermission?: boolean;
     allowUserToCreateOrganizationPermission?: boolean;
-    allowUserToUpdateUserRoleInOrganization?: boolean;
-    allowUserToUpdateOrganizationRole?: boolean;
-    allowUserToDeleteOrganizationRole?: boolean;
-    allowUserToCreateOrganizationRole?: boolean;
-    allowUserToUpdateUserPermissionInOrganization?: boolean;
-    allowUserToUpdateOrganizationPermission?: boolean;
-    allowUserToDeleteOrganizationPermission?: boolean;
-    allowUserToCreateOrganizationPermission?: boolean;
   };
 }
 

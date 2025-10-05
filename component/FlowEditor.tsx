@@ -62,7 +62,24 @@ export function FlowEditor() {
       console.log("Current edges:", edges);
 
       // Convert flow nodes to auth config
-      const authConfig = convertFlowNodesToAuthConfig(nodes, edges);
+      const graphNodes = nodes.map((node) => ({
+        id: node.id,
+        type: node.type || "generic",
+        position: node.position,
+        data: {
+          label: (node.data as any)?.label || node.id,
+          ...(node.data || {}),
+        },
+      }));
+
+      const graphEdges = edges.map((edge) => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        animated: edge.animated || false,
+      }));
+
+      const authConfig = convertFlowNodesToAuthConfig(graphNodes, graphEdges);
       console.log("Generated auth config:", authConfig);
 
       // Generate the auth.ts code

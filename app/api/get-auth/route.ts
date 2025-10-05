@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
+import { NextResponse } from "next/server";
 import { join } from "path";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Try to read utils/auth.ts first (the one CLI detects)
     let authPath = join(process.cwd(), "utils", "auth.ts");
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     try {
       authContent = await readFile(authPath, "utf8");
-    } catch (error) {
+    } catch {
       // Fallback to root auth.ts
       authPath = join(process.cwd(), "auth.ts");
       authContent = await readFile(authPath, "utf8");
