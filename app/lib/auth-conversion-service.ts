@@ -44,11 +44,15 @@ export interface AuthConfig {
     updateAge?: number;
   };
   user?: {
+<<<<<<< HEAD
     additionalFields?: Record<string, {
       type: string;
       defaultValue?: string | number | boolean;
       required?: boolean;
     }>;
+=======
+    additionalFields?: Record<string, unknown>;
+>>>>>>> 8ed2b73e298527aef85b102b2e3cf32a15cb4a58
   };
   plugins?: string[];
   trustedOrigins?: string[];
@@ -63,7 +67,11 @@ export interface GraphNode {
   data: {
     label: string;
     provider?: string;
+<<<<<<< HEAD
     [key: string]: string | number | boolean | undefined; // Allow additional properties
+=======
+    [key: string]: unknown; // Allow any additional properties
+>>>>>>> 8ed2b73e298527aef85b102b2e3cf32a15cb4a58
   };
 }
 
@@ -100,11 +108,21 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   if (emailAuthNode) {
     authConfig.emailAndPassword = {
       enabled: true,
+<<<<<<< HEAD
       requireEmailVerification: Boolean(emailAuthNode.data.requireVerification) || false,
       minLength: Number(emailAuthNode.data.minLength) || 8,
       maxLength: Number(emailAuthNode.data.maxLength) || 128,
       autoSignIn: Boolean(emailAuthNode.data.autoSignIn) || false,
       resetTokenExpiresIn: Number(emailAuthNode.data.resetTokenExpiresIn) || 3600,
+=======
+      requireEmailVerification:
+        Boolean(emailAuthNode.data.requireEmailVerification) || false,
+      minLength: Number(emailAuthNode.data.minLength) || 8,
+      maxLength: Number(emailAuthNode.data.maxLength) || 128,
+      autoSignIn: Boolean(emailAuthNode.data.autoSignIn) || false,
+      resetTokenExpiresIn:
+        Number(emailAuthNode.data.resetTokenExpiresIn) || 3600,
+>>>>>>> 8ed2b73e298527aef85b102b2e3cf32a15cb4a58
       sendResetPassword:
         "async ({ user, url }) => { console.log(`Reset password email for ${user.email}: ${url}`); }",
       sendVerificationEmail:
@@ -118,10 +136,17 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   );
   if (emailVerificationNode) {
     authConfig.emailVerification = {
+<<<<<<< HEAD
       sendOnSignUp: Boolean(emailVerificationNode.data.sendOnSignUp) !== false,
       sendOnSignIn: Boolean(emailVerificationNode.data.sendOnSignIn) || false,
       autoSignInAfterVerification:
         Boolean(emailVerificationNode.data.autoSignInAfterVerification) !== false,
+=======
+      sendOnSignUp: Boolean(emailVerificationNode.data.sendOnSignUp) || true,
+      sendOnSignIn: Boolean(emailVerificationNode.data.sendOnSignIn) || false,
+      autoSignInAfterVerification:
+        Boolean(emailVerificationNode.data.autoSignInAfterVerification) || true,
+>>>>>>> 8ed2b73e298527aef85b102b2e3cf32a15cb4a58
       tokenExpiresIn: Number(emailVerificationNode.data.tokenExpiresIn) || 3600,
     };
   }
@@ -148,10 +173,20 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   const accountNode = graphConfig.nodes.find((node) => node.type === "account");
   if (accountNode) {
     authConfig.account = {
+<<<<<<< HEAD
       encryptOAuthTokens: Boolean(accountNode.data.encryptOAuthTokens) !== false,
       updateOnSignIn: Boolean(accountNode.data.updateOnSignIn) !== false,
       trustedProviders: Array.isArray(accountNode.data.trustedProviders) ? accountNode.data.trustedProviders : [],
       allowDifferentEmails: Boolean(accountNode.data.allowDifferentEmails) || false,
+=======
+      encryptOAuthTokens: Boolean(accountNode.data.encryptOAuthTokens) || true,
+      updateOnSignIn: Boolean(accountNode.data.updateOnSignIn) || true,
+      trustedProviders: Array.isArray(accountNode.data.trustedProviders)
+        ? (accountNode.data.trustedProviders as string[])
+        : [],
+      allowDifferentEmails:
+        Boolean(accountNode.data.allowDifferentEmails) || false,
+>>>>>>> 8ed2b73e298527aef85b102b2e3cf32a15cb4a58
     };
   }
 
@@ -163,7 +198,15 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
     authConfig.rateLimit = {
       window: Number(rateLimitNode.data.window) || 60,
       maxRequests: Number(rateLimitNode.data.maxRequests) || 100,
+<<<<<<< HEAD
       customRules: typeof rateLimitNode.data.customRules === 'object' ? rateLimitNode.data.customRules : {},
+=======
+      customRules:
+        (rateLimitNode.data.customRules as Record<
+          string,
+          { window: number; max: number }
+        >) || {},
+>>>>>>> 8ed2b73e298527aef85b102b2e3cf32a15cb4a58
     };
   }
 

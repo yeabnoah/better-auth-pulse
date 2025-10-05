@@ -1,0 +1,22 @@
+{
+  "database": {
+    "type": "drizzle",
+    "provider": "sqlite"
+  },
+  "emailPassword": {
+    "enabled": true,
+    "minLength": 8,
+    "maxLength": 128,
+    "requireVerification": true,
+    "autoSignIn": true,
+    "resetTokenExpiresIn": 3600
+  },
+  "socialProviders": {
+    "google": {
+      "enabled": true
+    },
+    "github": {
+      "enabled": true
+    }
+  }
+}
