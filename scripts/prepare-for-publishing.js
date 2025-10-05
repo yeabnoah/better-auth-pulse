@@ -28,7 +28,7 @@ function validatePackageJson() {
       return false;
     }
     
-    if (!pkg.bin['better-auth-pulse']) {
+    if (!pkg.bin['better-auth-pulse'] && !pkg.bin['bap']) {
       console.log('❌ Missing bin entry for better-auth-pulse');
       return false;
     }
@@ -46,7 +46,7 @@ function validateFiles() {
   console.log('🔍 Validating required files...');
   
   const requiredFiles = [
-    'bin/better-auth-pulse.js',
+    'bin/cli.js',
     'lib/cli-utils.js',
     'utils/parseAuthToNodes.ts',
     'utils/convertPulseConfigToFlowNodes.ts',
@@ -71,16 +71,16 @@ function validateCLI() {
   console.log('🔍 Validating CLI executable...');
   
   try {
-    const stats = fs.statSync('bin/better-auth-pulse.js');
+    const stats = fs.statSync('bin/cli.js');
     
     // Check if file has execute permissions
     if (!(stats.mode & parseInt('111', 8))) {
       console.log('⚠️  CLI binary may not be executable, fixing...');
-      execSync('chmod +x bin/better-auth-pulse.js');
+      execSync('chmod +x bin/cli.js');
     }
     
     // Test CLI help
-    const output = execSync('node bin/better-auth-pulse.js --help', { encoding: 'utf8' });
+    const output = execSync('node bin/cli.js --help', { encoding: 'utf8' });
     
     if (!output.includes('Better Auth Pulse CLI')) {
       console.log('❌ CLI help output invalid');

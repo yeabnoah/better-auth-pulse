@@ -44,7 +44,11 @@ export interface AuthConfig {
     updateAge?: number;
   };
   user?: {
-    additionalFields?: Record<string, any>;
+    additionalFields?: Record<string, {
+      type: string;
+      defaultValue?: string | number | boolean;
+      required?: boolean;
+    }>;
   };
   plugins?: string[];
   trustedOrigins?: string[];
@@ -59,7 +63,7 @@ export interface GraphNode {
   data: {
     label: string;
     provider?: string;
-    [key: string]: any; // Allow any additional properties
+    [key: string]: string | number | boolean | undefined; // Allow additional properties
   };
 }
 
@@ -84,7 +88,7 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   );
   if (databaseNode) {
     authConfig.database = {
-      provider: databaseNode.data.provider || "postgresql",
+      provider: String(databaseNode.data.provider) || "postgresql",
       url: "process.env.DATABASE_URL", // Use string for UI display
     };
   }
@@ -96,11 +100,11 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   if (emailAuthNode) {
     authConfig.emailAndPassword = {
       enabled: true,
-      requireEmailVerification: emailAuthNode.data.requireVerification || false,
-      minLength: emailAuthNode.data.minLength || 8,
-      maxLength: emailAuthNode.data.maxLength || 128,
-      autoSignIn: emailAuthNode.data.autoSignIn || false,
-      resetTokenExpiresIn: emailAuthNode.data.resetTokenExpiresIn || 3600,
+      requireEmailVerification: Boolean(emailAuthNode.data.requireVerification) || false,
+      minLength: Number(emailAuthNode.data.minLength) || 8,
+      maxLength: Number(emailAuthNode.data.maxLength) || 128,
+      autoSignIn: Boolean(emailAuthNode.data.autoSignIn) || false,
+      resetTokenExpiresIn: Number(emailAuthNode.data.resetTokenExpiresIn) || 3600,
       sendResetPassword:
         "async ({ user, url }) => { console.log(`Reset password email for ${user.email}: ${url}`); }",
       sendVerificationEmail:
@@ -114,11 +118,11 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   );
   if (emailVerificationNode) {
     authConfig.emailVerification = {
-      sendOnSignUp: emailVerificationNode.data.sendOnSignUp || true,
-      sendOnSignIn: emailVerificationNode.data.sendOnSignIn || false,
+      sendOnSignUp: Boolean(emailVerificationNode.data.sendOnSignUp) !== false,
+      sendOnSignIn: Boolean(emailVerificationNode.data.sendOnSignIn) || false,
       autoSignInAfterVerification:
-        emailVerificationNode.data.autoSignInAfterVerification || true,
-      tokenExpiresIn: emailVerificationNode.data.tokenExpiresIn || 3600,
+        Boolean(emailVerificationNode.data.autoSignInAfterVerification) !== false,
+      tokenExpiresIn: Number(emailVerificationNode.data.tokenExpiresIn) || 3600,
     };
   }
 
@@ -144,10 +148,10 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   const accountNode = graphConfig.nodes.find((node) => node.type === "account");
   if (accountNode) {
     authConfig.account = {
-      encryptOAuthTokens: accountNode.data.encryptOAuthTokens || true,
-      updateOnSignIn: accountNode.data.updateOnSignIn || true,
-      trustedProviders: accountNode.data.trustedProviders || [],
-      allowDifferentEmails: accountNode.data.allowDifferentEmails || false,
+      encryptOAuthTokens: Boolean(accountNode.data.encryptOAuthTokens) !== false,
+      updateOnSignIn: Boolean(accountNode.data.updateOnSignIn) !== false,
+      trustedProviders: Array.isArray(accountNode.data.trustedProviders) ? accountNode.data.trustedProviders : [],
+      allowDifferentEmails: Boolean(accountNode.data.allowDifferentEmails) || false,
     };
   }
 
@@ -157,9 +161,9 @@ export function convertGraphToAuthConfig(graphConfig: GraphConfig): AuthConfig {
   );
   if (rateLimitNode) {
     authConfig.rateLimit = {
-      window: rateLimitNode.data.window || 60,
-      maxRequests: rateLimitNode.data.maxRequests || 100,
-      customRules: rateLimitNode.data.customRules || {},
+      window: Number(rateLimitNode.data.window) || 60,
+      maxRequests: Number(rateLimitNode.data.maxRequests) || 100,
+      customRules: typeof rateLimitNode.data.customRules === 'object' ? rateLimitNode.data.customRules : {},
     };
   }
 
@@ -323,7 +327,6 @@ export const auth = betterAuth({
   socialProviders: {`;
 
     Object.entries(authConfig.socialProviders).forEach(([provider, config]) => {
-      const envVarName = provider.toUpperCase();
       authTs += `
     ${provider}: {
       clientId: ${config.clientId},
@@ -353,7 +356,7 @@ export const auth = betterAuth({
     authTs += `
   plugins: [`;
 
-    authConfig.plugins.forEach((plugin, index) => {
+    authConfig.plugins.forEach((plugin) => {
       if (plugin === "rateLimit" && authConfig.rateLimit) {
         authTs += `
     rateLimit({
@@ -437,8 +440,8 @@ export const auth = betterAuth({
 
 // Enhanced function to convert flow nodes to auth config
 export function convertFlowNodesToAuthConfig(
-  nodes: any[],
-  edges: any[]
+  nodes: GraphNode[],
+  edges: GraphEdge[]
 ): AuthConfig {
   const graphConfig: GraphConfig = {
     nodes: nodes.map((node) => ({

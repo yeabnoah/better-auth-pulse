@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
-import { resolve, join } from 'path';
+import { resolve } from 'path';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +16,6 @@ export async function GET(request: NextRequest) {
     
     // Security: Only allow reading from specific directories and file types
     const allowedExtensions = ['.ts', '.js', '.json'];
-    const allowedDirectories = ['lib', 'src', 'utils', 'config', 'server'];
     
     const extension = filePath.substring(filePath.lastIndexOf('.'));
     if (!allowedExtensions.includes(extension)) {
@@ -59,14 +58,14 @@ export async function GET(request: NextRequest) {
       
       return NextResponse.json({ content });
       
-    } catch (error) {
+    } catch (err) {
       return NextResponse.json(
-        { error: `Could not read file: ${error instanceof Error ? error.message : 'Unknown error'}` },
+        { error: `Could not read file: ${err instanceof Error ? err.message : 'Unknown error'}` },
         { status: 404 }
       );
     }
     
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

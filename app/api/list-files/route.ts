@@ -52,14 +52,14 @@ export async function GET(request: NextRequest) {
       
       return NextResponse.json(fileList);
       
-    } catch (error) {
+    } catch (err) {
       return NextResponse.json(
-        { error: `Could not list directory: ${error instanceof Error ? error.message : 'Unknown error'}` },
+        { error: `Could not list directory: ${err instanceof Error ? err.message : 'Unknown error'}` },
         { status: 404 }
       );
     }
     
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
