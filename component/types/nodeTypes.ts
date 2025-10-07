@@ -5,13 +5,38 @@ export interface NodeTypeDefinition {
   description: string;
 }
 
-export const NODE_TYPES_FOR_SIDEBAR: NodeTypeDefinition[] = [
+// All available node types for code generation
+export const ALL_NODE_TYPES: NodeTypeDefinition[] = [
   // Authentication Core
   {
     type: "authStarter",
     label: "Auth Start",
     category: "authentication",
     description: "Authentication starter",
+  },
+  {
+    type: "signin",
+    label: "Sign In",
+    category: "authentication",
+    description: "User sign in functionality",
+  },
+  {
+    type: "signup",
+    label: "Sign Up",
+    category: "authentication",
+    description: "User registration functionality",
+  },
+  {
+    type: "forgotPassword",
+    label: "Forgot Password",
+    category: "authentication",
+    description: "Password reset functionality",
+  },
+  {
+    type: "resetPassword",
+    label: "Reset Password",
+    category: "authentication",
+    description: "Password reset confirmation",
   },
   {
     type: "emailAuth",
@@ -44,10 +69,34 @@ export const NODE_TYPES_FOR_SIDEBAR: NodeTypeDefinition[] = [
     description: "GitHub OAuth provider",
   },
   {
+    type: "oauthDiscord",
+    label: "Discord OAuth",
+    category: "authentication",
+    description: "Discord OAuth provider",
+  },
+  {
+    type: "oauthTwitter",
+    label: "Twitter OAuth",
+    category: "authentication",
+    description: "Twitter OAuth provider",
+  },
+  {
     type: "account",
     label: "Account Linking",
     category: "authentication",
     description: "Account linking configuration",
+  },
+  {
+    type: "profile",
+    label: "User Profile",
+    category: "authentication",
+    description: "User profile management",
+  },
+  {
+    type: "logout",
+    label: "Logout",
+    category: "authentication",
+    description: "User logout functionality",
   },
 
   // Database & Storage
@@ -184,6 +233,12 @@ export const NODE_TYPES_FOR_SIDEBAR: NodeTypeDefinition[] = [
     description: "Organization client for frontend",
   },
 ];
+
+// Database and authentication nodes are draggable in the sidebar
+export const NODE_TYPES_FOR_SIDEBAR: NodeTypeDefinition[] =
+  ALL_NODE_TYPES.filter(
+    (node) => node.category === "database" || node.category === "authentication"
+  );
 
 export const NODE_DIMENSIONS = {
   width: 150,

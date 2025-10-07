@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "sourceFile": "test-auth.ts",
-    "generatedAt": "2025-10-05T07:33:10.478Z",
+    "sourceFile": "test-config.json",
+    "generatedAt": "2025-10-05T08:38:42.844Z",
     "version": "1.0.0",
     "cli": "clack"
   },
@@ -98,17 +98,6 @@
       "data": {
         "label": "Google OAuth"
       }
-    },
-    {
-      "id": "9",
-      "type": "oauthGithub",
-      "position": {
-        "x": 800,
-        "y": 300
-      },
-      "data": {
-        "label": "Github OAuth"
-      }
     }
   ],
   "edges": [
@@ -153,17 +142,12 @@
       "source": "7",
       "target": "8",
       "animated": true
-    },
-    {
-      "id": "e7-9",
-      "source": "7",
-      "target": "9",
-      "animated": true
     }
   ],
-  "authContent": "import { betterAuth } from \"better-auth\"\nimport { drizzleAdapter } from \"better-auth/adapters/drizzle\"\nimport { prismaAdapter } from \"better-auth/adapters/prisma\"\n\nexport const auth = betterAuth({\n  database: {\n    provider: \"sqlite\",\n    url: \"sqlite://./db.sqlite\"\n  },\n  emailAndPassword: {\n    enabled: true,\n    minPasswordLength: 8,\n    requireEmailVerification: true\n  },\n  socialProviders: {\n    google: {\n      clientId: process.env.GOOGLE_CLIENT_ID!,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,\n    },\n    github: {\n      clientId: process.env.GITHUB_CLIENT_ID!,\n      clientSecret: process.env.GITHUB_CLIENT_SECRET!,\n    }\n  }\n})\n",
+  "authContent": "import { betterAuth } from \"better-auth\"\nimport { drizzleAdapter } from \"better-auth/adapters/drizzle\"\n\nexport const auth = betterAuth({\n  database: {\n    provider: \"sqlite\",\n    url: \"sqlite://./db.sqlite\"\n  },\n  emailAndPassword: {\n    enabled: true,\n    minPasswordLength: 8,\n    requireEmailVerification: true\n  },\n  socialProviders: {\n    google: {\n      clientId: process.env.GOOGLE_CLIENT_ID!,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,\n    }\n  }\n})",
   "parsedConfig": {
     "hasDatabase": true,
+    "database": "drizzle",
     "databaseProvider": "sqlite",
     "hasEmailPassword": true,
     "emailPasswordConfig": {
@@ -173,24 +157,12 @@
       "autoSignIn": true,
       "resetTokenExpiresIn": 3600
     },
-    "hasEmailVerification": false,
-    "emailVerificationConfig": {},
     "socialProviders": [
-      "google",
-      "github"
+      "google"
     ],
     "hasAccountLinking": false,
-    "accountLinkingConfig": {},
     "hasRateLimit": false,
-    "rateLimitConfig": {},
-    "hasAdvanced": false,
-    "advancedConfig": {},
-    "database": "drizzle",
-    "features": [
-      "Email & Password"
-    ],
-    "userFields": [],
-    "plugins": []
+    "hasAdvanced": false
   },
   "jsonConfig": {
     "database": {
@@ -207,9 +179,6 @@
     },
     "socialProviders": {
       "google": {
-        "enabled": true
-      },
-      "github": {
         "enabled": true
       }
     }

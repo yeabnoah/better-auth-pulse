@@ -4,15 +4,15 @@ import { join } from "path";
 
 export async function GET() {
   try {
-    // Try to read utils/auth.ts first (the one CLI detects)
-    let authPath = join(process.cwd(), "utils", "auth.ts");
+    // Try to read root auth.ts first (the one CLI detects first)
+    let authPath = join(process.cwd(), "auth.ts");
     let authContent: string;
 
     try {
       authContent = await readFile(authPath, "utf8");
     } catch {
-      // Fallback to root auth.ts
-      authPath = join(process.cwd(), "auth.ts");
+      // Fallback to utils/auth.ts
+      authPath = join(process.cwd(), "utils", "auth.ts");
       authContent = await readFile(authPath, "utf8");
     }
 

@@ -1,226 +1,184 @@
-# 🚀 Better Auth Pulse
+# Better Auth Pulse
 
-> **Visual Studio for Better Auth Configuration** - Drag, drop, and generate production-ready authentication code
+A visual studio for Better Auth configuration with drag-and-drop interface and automatic environment variable generation.
 
-[![npm version](https://badge.fury.io/js/better-auth-pulse.svg)](https://badge.fury.io/js/better-auth-pulse)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-
-A powerful visual interface for configuring Better Auth with drag-and-drop simplicity. Generate complete TypeScript authentication code without writing a single line.
+![Better Auth Pulse](https://img.shields.io/badge/version-0.2.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 
 ## ✨ Features
 
-### 🎨 **Visual Configuration**
-- **Drag & Drop Interface** - Build auth flows visually
-- **Real-time Preview** - See your configuration as you build
-- **Auto Layout** - Automatic node positioning and organization
-- **Rich Node Types** - 13+ specialized auth components
+- **🎨 Visual Configuration**: Drag-and-drop interface for Better Auth setup
+- **🔧 Node-Based Editor**: Intuitive flow-based configuration
+- **⚙️ Environment Generation**: Automatic `.env` file generation with all required variables
+- **🔐 OAuth Providers**: Support for Google, GitHub, Discord, Twitter, and more
+- **📧 Email Configuration**: Resend integration with email verification
+- **🗄️ Database Support**: Prisma and Drizzle adapters
+- **🔒 Security Features**: Rate limiting, session management, account linking
+- **📱 Responsive Design**: Works on desktop and mobile devices
+- **🎯 Real-time Preview**: See your auth configuration as you build it
 
-### 🔧 **Comprehensive Auth Support**
-- **Database Adapters** - Prisma, Drizzle with SQLite/PostgreSQL/MySQL
-- **Authentication Methods** - Email/password, social login, magic links
-- **Security Features** - Rate limiting, CSRF protection, secure cookies
-- **Advanced Options** - Account linking, session management, plugins
-
-### 🚀 **Developer Experience**
-- **CLI Tool** - Run anywhere with `npx better-auth-pulse`
-- **Auto Detection** - Finds your existing auth configurations
-- **Code Generation** - Production-ready TypeScript output
-- **Environment Templates** - Auto-generated `.env` files
-
-## 🎯 Quick Start
+## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-# Install globally
-npm install -g better-auth-pulse
-
-# Or use with npx (recommended)
-npx better-auth-pulse
+npm install better-auth-pulse
+# or
+yarn add better-auth-pulse
+# or
+pnpm add better-auth-pulse
 ```
 
-### Basic Usage
+### Usage
 
 ```bash
-# Auto-detect auth file and start studio
+# Start the visual studio
 npx better-auth-pulse
 
-# Specify custom auth file
-npx better-auth-pulse --file=lib/auth.ts
-
-# Deep scan entire project
-npx better-auth-pulse --scan
-
-# Export configuration only
-npx better-auth-pulse --export
+# Or use the CLI
+npx better-auth-pulse init
 ```
 
-### CLI Options
+## 🎯 How It Works
 
-| Option | Description | Example |
-|--------|-------------|---------|
-| `-f, --file=<path>` | Specify auth.ts file path | `--file=lib/auth.ts` |
-| `-p, --port=<number>` | Set studio port (default: 3001) | `--port=4000` |
-| `-s, --scan` | Deep scan entire project | `--scan` |
-| `-a, --auto` | Auto-select if only one file found | `--auto` |
-| `-e, --export` | Export JSON config only | `--export` |
-| `-h, --help` | Show help information | `--help` |
-| `-v, --version` | Show version | `--version` |
+1. **Drag & Drop**: Add authentication nodes to your canvas
+2. **Configure**: Click the settings button on nodes to configure OAuth providers, database settings, etc.
+3. **Generate**: Click "Save to auth.ts" to generate both your `auth.ts` file and `.env` file
+4. **Deploy**: Use the generated files in your Better Auth project
 
-## 🎨 Studio Interface
+## 🔧 Configuration
 
-### Supported Node Types
+### OAuth Providers
 
-#### **Database & Adapters**
-- `database` - Database configuration
-- `prisma` - Prisma adapter
-- `drizzle` - Drizzle adapter  
-- `provider` - Database provider
-- `sqlite` / `postgresql` / `mysql` - Database types
+Configure OAuth providers by dragging them to the canvas and clicking the settings button:
 
-#### **Authentication**
-- `emailAuth` - Email and password authentication
-- `emailVerification` - Email verification flow
-- `emailResend` - Resend email service
-- `socialLogin` - Social authentication hub
-- `oauthGoogle` / `oauthGithub` - OAuth providers
+- **Google OAuth**: Client ID and Client Secret
+- **GitHub OAuth**: Client ID and Client Secret  
+- **Discord OAuth**: Client ID and Client Secret
+- **Twitter OAuth**: Client ID and Client Secret
 
-#### **Advanced Features**
-- `account` - Account linking and management
-- `rateLimit` - Rate limiting configuration
-- `advanced` - Security and cookie options
-- `eventHandler` - Custom event handling
+### Database Configuration
 
-### Visual Workflow
+- **Prisma**: PostgreSQL, MySQL, SQLite support
+- **Drizzle**: Multi-database support
+- **Connection strings**: Automatic environment variable generation
 
-1. **Start** - Begin with the `authStarter` node
-2. **Connect** - Drag and connect authentication components
-3. **Configure** - Set parameters for each component
-4. **Generate** - Create production-ready TypeScript code
-5. **Export** - Save configuration and generated files
+### Email Services
+
+- **Resend**: API key and from email configuration
+- **Email verification**: Automatic setup
+- **Password reset**: Built-in templates
 
 ## 📁 Generated Files
 
-When you use Better Auth Pulse, it creates:
-
-- **`.better-auth-pulse.config.json`** - Full visual configuration
-- **`auth-config.json`** - JSON configuration for integration
-- **Updated `auth.ts`** - Your Better Auth configuration
-- **Environment template** - Required environment variables
-
-## 🔧 Configuration Examples
-
-### Email & Password Authentication
+### auth.ts
 ```typescript
-// Generated auth.ts
+import { PrismaClient } from "@prisma/client";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+
+const prisma = new PrismaClient();
+
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
+  adapter: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  emailAndPassword: {
-    enabled: true,
-    minPasswordLength: 8,
-    maxPasswordLength: 128,
-    requireEmailVerification: true,
-    autoSignIn: true,
+  database: {
+    provider: "postgresql",
+    url: process.env.DATABASE_URL,
   },
-  // ... more configuration
-});
-```
-
-### Social Login with Google
-```typescript
-export const auth = betterAuth({
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
-  // ... more configuration
 });
 ```
 
-### Advanced Security Setup
-```typescript
-export const auth = betterAuth({
-  rateLimit: {
-    window: 60,
-    max: 100,
-    customRules: {
-      "/api/auth/sign-in": { window: 60, max: 5 }
-    }
-  },
-  advanced: {
-    useSecureCookies: true,
-    cookiePrefix: "better-auth",
-  },
-  // ... more configuration
-});
+### .env
+```bash
+# Better Auth Environment Variables
+# Generated by Better Auth Pulse Studio
+
+DATABASE_URL=postgresql://user:password@localhost:5432/mydb
+BETTER_AUTH_SECRET=your-secret-key
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# OAuth Provider Credentials
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Email Configuration
+RESEND_API_KEY=your-resend-api-key
+FROM_EMAIL=noreply@example.com
 ```
 
-## 🛠 Development
+## 🎨 Node Types
 
-### Prerequisites
-- Node.js 18+ 
-- npm or pnpm
-- TypeScript
+### Authentication Core
+- **Auth Starter**: Main authentication entry point
+- **Sign In**: User sign-in functionality
+- **Sign Up**: User registration
+- **Email + Password**: Email/password authentication
+- **Email Verification**: Email verification settings
 
-### Setup
+### OAuth Providers
+- **Google OAuth**: Google authentication
+- **GitHub OAuth**: GitHub authentication
+- **Discord OAuth**: Discord authentication
+- **Twitter OAuth**: Twitter authentication
+
+### Database & Storage
+- **Prisma Database**: Prisma ORM integration
+- **Drizzle Database**: Drizzle ORM integration
+
+### Advanced Features
+- **Rate Limiting**: API rate limiting
+- **Account Linking**: Multi-provider account linking
+- **Session Management**: Session configuration
+- **Organization**: Multi-tenant support
+
+## 🛠️ Development
+
 ```bash
 # Clone the repository
 git clone https://github.com/your-username/better-auth-pulse.git
-cd better-auth-pulse
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server
-npm run dev
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Run type checking
+pnpm type-check
 ```
 
-### Project Structure
-```
-better-auth-pulse/
-├── cli/                 # CLI tool
-├── app/                 # Next.js application
-├── component/           # React components
-├── lib/                 # Utilities and services
-├── utils/               # Helper functions
-└── public/              # Static assets
-```
+## 📝 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## 📞 Support
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **Issues**: [GitHub Issues](https://github.com/your-username/better-auth-pulse/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/better-auth-pulse/discussions)
 
 ## 🙏 Acknowledgments
 
 - [Better Auth](https://better-auth.com) - The amazing authentication library
-- [React Flow](https://reactflow.dev) - The visual flow editor
-- [Next.js](https://nextjs.org) - The React framework
-- [Tailwind CSS](https://tailwindcss.com) - The CSS framework
-
-## 📞 Support
-
-- 📖 [Documentation](https://github.com/your-username/better-auth-pulse#readme)
-- 🐛 [Report Issues](https://github.com/your-username/better-auth-pulse/issues)
-- 💬 [Discussions](https://github.com/your-username/better-auth-pulse/discussions)
+- [React Flow](https://reactflow.dev) - The flow-based editor
+- [Radix UI](https://radix-ui.com) - Accessible UI components
+- [Tailwind CSS](https://tailwindcss.com) - Utility-first CSS framework
 
 ---
 
-<div align="center">
-  <strong>Built with ❤️ for the Better Auth community</strong>
-</div>
+Made with ❤️ by the Better Auth Pulse Team

@@ -10,6 +10,13 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
       "@": require("path").resolve(__dirname, "."),
     };
+
+    // Exclude auth.ts from build
+    config.module.rules.push({
+      test: /auth\.ts$/,
+      use: "ignore-loader",
+    });
+
     return config;
   },
 };

@@ -1,0 +1,21 @@
+import { PrismaClient } from "@prisma/client";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+
+const prisma = new PrismaClient();
+
+export const auth = betterAuth({
+  adapter: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  database: {
+    provider: "postgresql",
+    url: process.env.DATABASE_URL,
+  },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+});

@@ -8,10 +8,15 @@ export type PreviewMode =
   | "organization-client";
 
 export interface NodeData {
+  id?: string;
   label: string;
   category?: string;
   provider?: string;
   type?: string;
+  config?: {
+    [key: string]: any;
+  };
+  isConfigurable?: boolean;
 }
 
 export interface EdgeData {

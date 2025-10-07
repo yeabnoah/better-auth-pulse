@@ -1,291 +1,307 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Node, Edge } from "@xyflow/react";
-import { PreviewMode } from "../types";
-import { downloadFile } from "../utils/fileUtils";
+
+import React from "react";
 import {
-  generateBetterAuthCode,
-  generateEnvTemplate,
-  generateOrganizationClient,
-} from "../../utils/generateBetterAuthCode";
-import { convertFlowNodesToPulseConfig } from "../../utils/convertPulseConfigToFlowNodes";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Separator } from "../../components/ui/separator";
+import {
+  Database,
+  Shield,
+  Mail,
+  Users,
+  Key,
+  Settings,
+  CheckCircle,
+  AlertCircle,
+  Info,
+} from "lucide-react";
+import { Node, Edge } from "@xyflow/react";
 
 interface PreviewPanelProps {
   nodes: Node[];
   edges: Edge[];
-  onClose: () => void;
-  onNodesUpdate?: (nodes: Node[], edges: Edge[]) => void;
+  onReset?: () => void;
 }
 
-export function PreviewPanel({
-  nodes,
-  edges,
-  onClose,
-  onNodesUpdate,
-}: PreviewPanelProps) {
-  const [previewMode, setPreviewMode] = useState<PreviewMode>("canvas-to-json");
-  const [previewContent, setPreviewContent] = useState("");
-  const [authInput, setAuthInput] = useState("");
+const getNodeIcon = (nodeType: string) => {
+  switch (nodeType) {
+    case "authStarter":
+      return <Shield className="w-4 h-4" />;
+    case "database":
+    case "prismaDatabase":
+      return <Database className="w-4 h-4" />;
+    case "emailAuth":
+    case "emailVerification":
+    case "emailResend":
+      return <Mail className="w-4 h-4" />;
+    case "signin":
+    case "signup":
+    case "forgotPassword":
+    case "resetPassword":
+    case "profile":
+    case "logout":
+      return <Users className="w-4 h-4" />;
+    case "session":
+      return <Key className="w-4 h-4" />;
+    default:
+      return <Settings className="w-4 h-4" />;
+  }
+};
 
-  const validNodes = nodes.filter((node) => node.type && node.id);
+const getNodeStatus = (node: Node) => {
+  const hasConfig =
+    node.data?.config && Object.keys(node.data.config).length > 0;
+  const isConfigurable =
+    node.type?.startsWith("oauth") ||
+    node.type?.includes("database") ||
+    node.type?.includes("email") ||
+    node.type === "session" ||
+    node.type === "forgotPassword" ||
+    node.type === "emailVerification";
 
-  const handleDownload = (filename: string, content: string) => {
-    downloadFile(filename, content);
-  };
+  if (!isConfigurable) return null;
 
-  const handleGenerateFromAuthInput = async () => {
-    if (!authInput.trim()) {
-      alert("Please paste your auth.ts code first");
-      return;
+  return hasConfig ? (
+    <CheckCircle className="w-3 h-3 text-green-500" />
+  ) : (
+    <AlertCircle className="w-3 h-3 text-amber-500" />
+  );
+};
+
+const getNodeCategory = (nodeType: string) => {
+  if (nodeType?.startsWith("oauth")) return "OAuth";
+  if (nodeType?.includes("database")) return "Database";
+  if (nodeType?.includes("email")) return "Email";
+  if (
+    [
+      "signin",
+      "signup",
+      "forgotPassword",
+      "resetPassword",
+      "profile",
+      "logout",
+    ].includes(nodeType)
+  )
+    return "Authentication";
+  if (nodeType === "session") return "Session";
+  if (nodeType === "authStarter") return "Core";
+  return "Other";
+};
+
+const getNodeColor = (category: string) => {
+  switch (category) {
+    case "OAuth":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    case "Database":
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+    case "Email":
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
+    case "Authentication":
+      return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+    case "Session":
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+    case "Core":
+      return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+  }
+};
+
+export function PreviewPanel({ nodes, edges, onReset }: PreviewPanelProps) {
+  const configuredNodes = nodes.filter(
+    (node) => node.data?.config && Object.keys(node.data.config).length > 0
+  );
+
+  const unconfiguredNodes = nodes.filter((node) => {
+    const isConfigurable =
+      node.type?.startsWith("oauth") ||
+      node.type?.includes("database") ||
+      node.type?.includes("email") ||
+      node.type === "session" ||
+      node.type === "forgotPassword" ||
+      node.type === "emailVerification";
+    return (
+      isConfigurable &&
+      (!node.data?.config || Object.keys(node.data.config).length === 0)
+    );
+  });
+
+  const nodeCategories = nodes.reduce((acc, node) => {
+    const category = getNodeCategory(node.type || "");
+    if (!acc[category]) {
+      acc[category] = [];
     }
-
-    try {
-      const { generateNodesFromAuthFile } = await import(
-        "../../utils/parseAuthToNodes"
-      );
-      const { nodes: newNodes, edges: newEdges } =
-        generateNodesFromAuthFile(authInput);
-
-      // Update the parent component with the generated nodes
-      if (onNodesUpdate) {
-        onNodesUpdate(newNodes, newEdges);
-      }
-
-      console.log("Generated nodes:", newNodes, newEdges);
-      setAuthInput("");
-    } catch (error) {
-      console.error("Error parsing auth code:", error);
-      alert("Error parsing auth.ts code. Please check the format.");
-    }
-  };
-
-  const handleLoadFromAuth = async () => {
-    try {
-      const authResponse = await fetch("/utils/auth.ts");
-      if (authResponse.ok) {
-        const authContent = await authResponse.text();
-        const { generateNodesFromAuthFile } = await import(
-          "../../utils/parseAuthToNodes"
-        );
-        const { nodes: newNodes, edges: newEdges } =
-          generateNodesFromAuthFile(authContent);
-
-        // Update the parent component with the loaded nodes
-        if (onNodesUpdate) {
-          onNodesUpdate(newNodes, newEdges);
-        }
-
-        console.log("Loaded nodes:", newNodes, newEdges);
-      } else {
-        alert("No auth.ts file found. Using default configuration.");
-      }
-    } catch (error) {
-      console.error("Error loading auth.ts:", error);
-      alert("Error loading auth.ts file");
-    }
-  };
-
-  // Update preview content when nodes, edges, or mode changes
-  useEffect(() => {
-    switch (previewMode) {
-      case "canvas-to-json":
-        const config = convertFlowNodesToPulseConfig(validNodes as any, edges);
-        setPreviewContent(JSON.stringify(config, null, 2));
-        break;
-      case "json-to-auth":
-      case "generate-auth":
-        setPreviewContent(generateBetterAuthCode(validNodes as any, edges));
-        break;
-      case "organization-client":
-        setPreviewContent(generateOrganizationClient(validNodes as any, edges));
-        break;
-      default:
-        setPreviewContent("");
-    }
-  }, [nodes, edges, previewMode]);
+    acc[category].push(node);
+    return acc;
+  }, {} as Record<string, Node[]>);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">Preview & Export</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            ✕
-          </button>
+    <div className="h-full bg-background border-l border-border">
+      <div className="p-4 space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Configuration Preview</h3>
+          <Badge variant="outline" className="text-xs">
+            {nodes.length} nodes, {edges.length} connections
+          </Badge>
         </div>
 
-        {/* Mode Selection */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <button
-            onClick={() => setPreviewMode("canvas-to-json")}
-            className={`px-4 py-3 text-sm rounded-lg font-medium transition-colors ${
-              previewMode === "canvas-to-json"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-          >
-            Canvas → JSON
-          </button>
-          <button
-            onClick={() => setPreviewMode("json-to-auth")}
-            className={`px-4 py-3 text-sm rounded-lg font-medium transition-colors ${
-              previewMode === "json-to-auth"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-          >
-            JSON → Auth.ts
-          </button>
-          <button
-            onClick={() => setPreviewMode("load-auth")}
-            className={`px-4 py-3 text-sm rounded-lg font-medium transition-colors ${
-              previewMode === "load-auth"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-          >
-            Load Auth.ts
-          </button>
-          <button
-            onClick={() => setPreviewMode("generate-auth")}
-            className={`px-4 py-3 text-sm rounded-lg font-medium transition-colors ${
-              previewMode === "generate-auth"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-          >
-            Generate Auth.ts
-          </button>
-          <button
-            onClick={() => setPreviewMode("organization-client")}
-            className={`px-4 py-3 text-sm rounded-lg font-medium transition-colors col-span-2 ${
-              previewMode === "organization-client"
-                ? "bg-purple-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-          >
-            Organization Client
-          </button>
+        {/* Status Overview */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Status Overview
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-3 h-3 text-green-500" />
+                Configured
+              </span>
+              <Badge variant="secondary" className="text-xs">
+                {configuredNodes.length}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-2">
+                <AlertCircle className="w-3 h-3 text-amber-500" />
+                Needs Configuration
+              </span>
+              <Badge variant="outline" className="text-xs">
+                {unconfiguredNodes.length}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Node Categories */}
+        <div className="space-y-3">
+          {Object.entries(nodeCategories).map(([category, categoryNodes]) => (
+            <Card key={category}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  {getNodeIcon(categoryNodes[0]?.type || "")}
+                  {category}
+                  <Badge
+                    variant="secondary"
+                    className={`text-xs ${getNodeColor(category)}`}
+                  >
+                    {categoryNodes.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {categoryNodes.map((node) => {
+                  const category = getNodeCategory(node.type || "");
+                  const hasConfig =
+                    node.data?.config &&
+                    Object.keys(node.data.config).length > 0;
+
+                  return (
+                    <div
+                      key={node.id}
+                      className="flex items-center justify-between p-2 rounded-md bg-muted/50 hover:bg-muted/80 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        {getNodeIcon(node.type || "")}
+                        <span className="text-sm font-medium">
+                          {node.data?.label || node.id}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getNodeStatus(node)}
+                        <Badge
+                          variant={hasConfig ? "default" : "outline"}
+                          className="text-xs"
+                        >
+                          {hasConfig ? "Ready" : "Configure"}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </div>
 
-      {/* Content based on mode */}
-      <div className="flex-1 flex flex-col">
-        {previewMode === "canvas-to-json" && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex gap-2 mb-3">
-              <button
-                onClick={() => handleDownload("config.json", previewContent)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                Download JSON
-              </button>
-            </div>
-            <pre className="flex-1 bg-gray-900 p-4 rounded-lg border border-gray-700 text-xs overflow-auto text-gray-300 font-mono">
-              {previewContent}
-            </pre>
-          </div>
+        {/* Configuration Summary */}
+        {configuredNodes.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Configuration Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {configuredNodes.map((node) => (
+                <div key={node.id} className="text-xs space-y-1">
+                  <div className="font-medium text-foreground">
+                    {node.data?.label || node.id}
+                  </div>
+                  <div className="text-muted-foreground">
+                    {Object.entries(node.data?.config || {}).map(
+                      ([key, value]) => (
+                        <div key={key} className="flex justify-between">
+                          <span className="capitalize">{key}:</span>
+                          <span className="font-mono text-xs">
+                            {typeof value === "string" && value.length > 20
+                              ? `${value.substring(0, 20)}...`
+                              : String(value)}
+                          </span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                  <Separator className="my-1" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         )}
 
-        {previewMode === "json-to-auth" && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex gap-2 mb-3">
-              <button
-                onClick={() => handleDownload("auth.ts", previewContent)}
-                className="bg-green-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Download auth.ts
-              </button>
-              <button
-                onClick={() =>
-                  handleDownload(
-                    ".env.example",
-                    generateEnvTemplate(validNodes as any, edges)
-                  )
-                }
-                className="bg-yellow-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Download .env
-              </button>
-            </div>
-            <pre className="flex-1 bg-gray-900 p-4 rounded-lg border border-gray-700 text-xs overflow-auto text-gray-300 font-mono">
-              {previewContent}
-            </pre>
-          </div>
-        )}
-
-        {previewMode === "load-auth" && (
-          <div className="flex-1 flex flex-col">
-            <div className="mb-3">
-              <button
-                onClick={handleLoadFromAuth}
-                className="bg-purple-600 text-white px-3 py-2 rounded text-sm w-full mb-2"
-              >
-                Load from /utils/auth.ts
-              </button>
-              <p className="text-xs text-gray-600 mb-3">
-                Paste your auth.ts code below to generate nodes:
-              </p>
-              <textarea
-                value={authInput}
-                onChange={(e) => setAuthInput(e.target.value)}
-                placeholder="Paste your entire auth.ts file content here..."
-                className="w-full h-32 p-2 border rounded text-xs font-mono mb-3"
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleGenerateFromAuthInput}
-                  className="bg-green-600 text-white px-3 py-1 rounded text-sm flex-1"
-                >
-                  Generate Nodes
-                </button>
-                <button
-                  onClick={() => setAuthInput("")}
-                  className="bg-gray-600 text-white px-3 py-1 rounded text-sm"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {previewMode === "generate-auth" && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex gap-2 mb-3">
-              <button
-                onClick={() => handleDownload("auth.ts", previewContent)}
-                className="bg-black text-white px-3 py-1 rounded text-sm"
-              >
-                Generate & Download
-              </button>
-            </div>
-            <pre className="flex-1 bg-white p-3 rounded border text-xs overflow-auto">
-              {previewContent}
-            </pre>
-          </div>
-        )}
-
-        {previewMode === "organization-client" && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex gap-2 mb-3">
-              <button
-                onClick={() =>
-                  handleDownload("organization-client.ts", previewContent)
-                }
-                className="bg-purple-600 text-white px-3 py-1 rounded text-sm"
-              >
-                Download Client
-              </button>
-            </div>
-            <pre className="flex-1 bg-gray-900 p-4 rounded-lg border border-gray-700 text-xs overflow-auto text-gray-300 font-mono">
-              {previewContent}
-            </pre>
-          </div>
-        )}
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              disabled={nodes.length === 0}
+            >
+              <Database className="w-3 h-3 mr-2" />
+              Generate Database Schema
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              disabled={configuredNodes.length === 0}
+            >
+              <Settings className="w-3 h-3 mr-2" />
+              Export Configuration
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="w-full justify-start"
+              onClick={onReset}
+              disabled={nodes.length === 0}
+            >
+              <AlertCircle className="w-3 h-3 mr-2" />
+              Reset & Start Fresh
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

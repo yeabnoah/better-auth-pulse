@@ -8,7 +8,7 @@ import {
   useEdgesState,
   addEdge,
 } from "@xyflow/react";
-import { NODE_TYPES_FOR_SIDEBAR } from "../types/nodeTypes";
+import { ALL_NODE_TYPES } from "../types/nodeTypes";
 import { getLayoutedNodes } from "../utils/layout";
 
 export function useFlowEditor() {
@@ -130,11 +130,9 @@ export function useFlowEditor() {
         type,
         position,
         data: {
-          label:
-            NODE_TYPES_FOR_SIDEBAR.find((nt) => nt.type === type)?.label ||
-            type,
+          label: ALL_NODE_TYPES.find((nt) => nt.type === type)?.label || type,
           category:
-            NODE_TYPES_FOR_SIDEBAR.find((nt) => nt.type === type)?.category ||
+            ALL_NODE_TYPES.find((nt) => nt.type === type)?.category ||
             "default",
         },
       };
@@ -156,11 +154,11 @@ export function useFlowEditor() {
         position,
         data: {
           label:
-            NODE_TYPES_FOR_SIDEBAR.find((nt) => nt.type === nodeType)?.label ||
+            ALL_NODE_TYPES.find((nt) => nt.type === nodeType)?.label ||
             nodeType,
           category:
-            NODE_TYPES_FOR_SIDEBAR.find((nt) => nt.type === nodeType)
-              ?.category || "default",
+            ALL_NODE_TYPES.find((nt) => nt.type === nodeType)?.category ||
+            "default",
         },
       };
 
@@ -205,6 +203,39 @@ export function useFlowEditor() {
     setNodes(layoutedNodes);
   }, [nodes, edges, setNodes]);
 
+  const handleConfigChange = useCallback(
+    (nodeId: string, config: { [key: string]: any }) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  config: config,
+                },
+              }
+            : node
+        )
+      );
+    },
+    [setNodes]
+  );
+
+  const handleReset = useCallback(() => {
+    // Reset to default auth starter node
+    const defaultNodes: Node[] = [
+      {
+        id: "auth-start-1",
+        type: "authStarter",
+        position: { x: 250, y: 100 },
+        data: { label: "Auth Start" },
+      },
+    ];
+    setNodes(defaultNodes);
+    setEdges([]);
+  }, [setNodes, setEdges]);
+
   return {
     nodes,
     setNodes,
@@ -224,5 +255,7 @@ export function useFlowEditor() {
     handleEdgeAddNode,
     handleNodeSelect,
     handleAutoLayout,
+    handleConfigChange,
+    handleReset,
   };
 }

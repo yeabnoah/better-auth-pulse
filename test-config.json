@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "sourceFile": "test-auth.ts",
+    "generatedAt": "2024-01-01T00:00:00.000Z",
+    "version": "1.0.0",
+    "cli": "clack"
+  },
+  "nodes": [
+    {
+      "id": "1",
+      "type": "authStarter",
+      "position": { "x": 250, "y": 50 },
+      "data": { "label": "Auth Starter" }
+    },
+    {
+      "id": "2",
+      "type": "emailAuth",
+      "position": { "x": 100, "y": 200 },
+      "data": { "label": "Email & Password" }
+    },
+    {
+      "id": "3",
+      "type": "googleOAuth",
+      "position": { "x": 400, "y": 200 },
+      "data": { "label": "Google OAuth" }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1-2",
+      "source": "1",
+      "target": "2",
+      "animated": true
+    },
+    {
+      "id": "e1-3",
+      "source": "1",
+      "target": "3",
+      "animated": true
+    }
+  ],
+  "authContent": "import { betterAuth } from \"better-auth\"\nimport { drizzleAdapter } from \"better-auth/adapters/drizzle\"\n\nexport const auth = betterAuth({\n  database: {\n    provider: \"sqlite\",\n    url: \"sqlite://./db.sqlite\"\n  },\n  emailAndPassword: {\n    enabled: true,\n    minPasswordLength: 8,\n    requireEmailVerification: true\n  },\n  socialProviders: {\n    google: {\n      clientId: process.env.GOOGLE_CLIENT_ID!,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,\n    }\n  }\n})",
+  "parsedConfig": {
+    "hasDatabase": true,
+    "database": "drizzle",
+    "databaseProvider": "sqlite",
+    "hasEmailPassword": true,
+    "emailPasswordConfig": {
+      "minLength": 8,
+      "maxLength": 128,
+      "requireVerification": true,
+      "autoSignIn": true,
+      "resetTokenExpiresIn": 3600
+    },
+    "socialProviders": ["google"],
+    "hasAccountLinking": false,
+    "hasRateLimit": false,
+    "hasAdvanced": false
+  },
+  "jsonConfig": {
+    "database": {
+      "type": "drizzle",
+      "provider": "sqlite"
+    },
+    "emailPassword": {
+      "enabled": true,
+      "minLength": 8,
+      "maxLength": 128,
+      "requireVerification": true,
+      "autoSignIn": true,
+      "resetTokenExpiresIn": 3600
+    },
+    "socialProviders": {
+      "google": {
+        "enabled": true
+      }
+    }
+  }
+}

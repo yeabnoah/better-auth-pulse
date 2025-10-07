@@ -1,0 +1,40 @@
+{
+  "name": "better-auth-pulse-cli",
+  "version": "1.0.1",
+  "description": "CLI tool for Better Auth configuration parsing and generation",
+  "keywords": ["better-auth", "cli", "authentication", "config", "parser"],
+  "author": "Better Auth Pulse Team",
+  "license": "MIT",
+  "homepage": "https://github.com/your-username/better-auth-pulse#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/better-auth-pulse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/better-auth-pulse/issues"
+  },
+  "bin": {
+    "better-auth-pulse": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "echo 'No build needed for CLI'",
+    "test": "echo 'No tests specified' && exit 0",
+    "prepublishOnly": "echo 'CLI ready for publishing'"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

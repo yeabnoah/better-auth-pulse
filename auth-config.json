@@ -14,9 +14,6 @@
   "socialProviders": {
     "google": {
       "enabled": true
-    },
-    "github": {
-      "enabled": true
     }
   }
 }
