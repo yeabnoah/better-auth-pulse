@@ -1,8 +1,0 @@
-{
-  "/_not-found/page": "/_not-found",
-  "/api/get-auth/route": "/api/get-auth",
-  "/api/save-auth/route": "/api/save-auth",
-  "/api/save-config/route": "/api/save-config",
-  "/favicon.ico/route": "/favicon.ico",
-  "/page": "/"
-}

@@ -1,8 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/get-auth/route": "app/api/get-auth/route.js",
-  "/api/save-auth/route": "app/api/save-auth/route.js",
-  "/api/save-config/route": "app/api/save-config/route.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js"
-}
